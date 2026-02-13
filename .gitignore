@@ -17,6 +17,8 @@ out/
 .env.test.local
 .env.production.local
 
+dev.db
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
