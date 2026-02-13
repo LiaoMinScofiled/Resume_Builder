@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --primary: #3b82f6;
+  --secondary: #64748b;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.resume-container {
+  @apply max-w-4xl mx-auto p-4 sm:p-6 lg:p-8;
+}
+
+.form-group {
+  @apply mb-6;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+}
+
+.form-textarea {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[100px];
+}
+
+.btn {
+  @apply px-4 py-2 rounded-md font-medium transition-colors;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-blue-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-md p-6;
+}
+
+.section-title {
+  @apply text-lg font-semibold mb-4 pb-2 border-b border-gray-200;
+}
+
+/* 简历样式 */
+/* 现代简约风格（极简设计） */
+.resume-style-1 {
+  @apply bg-white p-8 rounded-lg shadow-sm border border-gray-100;
+}
+
+.resume-style-1 h1 {
+  @apply text-3xl font-bold mb-4 text-gray-900;
+}
+
+.resume-style-1 h2 {
+  @apply text-xl font-semibold mb-3 pb-2 border-b border-gray-100 text-gray-800;
+}
+
+.resume-style-1 h3 {
+  @apply font-medium text-gray-800;
+}
+
+/* 专业商务风格（传统格式） */
+.resume-style-2 {
+  @apply bg-gray-50 p-8 rounded-lg shadow-md border-l-4 border-primary;
+}
+
+.resume-style-2 h1 {
+  @apply text-3xl font-bold mb-4 text-gray-900;
+}
+
+.resume-style-2 h2 {
+  @apply text-xl font-semibold mb-3 pb-2 border-b border-gray-200 text-gray-800;
+}
+
+.resume-style-2 h3 {
+  @apply font-medium text-gray-800;
+}
+
+/* 创意设计风格（彩色、图形化） */
+.resume-style-3 {
+  @apply bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-lg shadow-lg border border-blue-100;
+}
+
+.resume-style-3 h1 {
+  @apply text-3xl font-bold mb-4 text-blue-800;
+}
+
+.resume-style-3 h2 {
+  @apply text-xl font-semibold mb-3 pb-2 border-b border-blue-200 text-blue-700;
+}
+
+.resume-style-3 h3 {
+  @apply font-medium text-blue-700;
+}
+
+.resume-style-3 .text-gray-600 {
+  @apply text-blue-600;
+}
+
+.resume-style-3 .text-gray-700 {
+  @apply text-blue-800;
+}
+
+/* 动画效果 */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .resume-container {
+    @apply p-2;
+  }
+  
+  .resume-style-1,
+  .resume-style-2,
+  .resume-style-3 {
+    @apply p-4;
+  }
+}
