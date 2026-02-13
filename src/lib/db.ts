@@ -1,17 +1,18 @@
 import bcrypt from 'bcryptjs';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  createdAt: string;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+let supabase: any = null;
+
+if (supabaseUrl && supabaseKey) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+  } catch (error) {
+    console.warn('Failed to initialize Supabase client:', error);
+  }
 }
-
-const DATA_DIR = path.join(process.cwd(), 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 export interface UserCredentials {
   email: string;
@@ -24,90 +25,87 @@ export interface UserLogin {
   password: string;
 }
 
-async function ensureDataDir() {
-  try {
-    await fs.access(DATA_DIR);
-  } catch {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  }
-}
-
-async function loadUsers(): Promise<User[]> {
-  try {
-    await ensureDataDir();
-    const data = await fs.readFile(USERS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-async function saveUsers(users: User[]): Promise<void> {
-  await ensureDataDir();
-  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
-}
-
 export const userService = {
   async createUser(credentials: UserCredentials) {
-    const users = await loadUsers();
-    
-    const existingUser = users.find(user => user.email === credentials.email);
-    if (existingUser) {
-      throw new Error('Email already exists');
+    if (!supabase) {
+      throw new Error('Database not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
     }
 
     const hashedPassword = await bcrypt.hash(credentials.password, 10);
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      email: credentials.email,
-      password: hashedPassword,
-      name: credentials.name,
-      createdAt: new Date().toISOString(),
-    };
+    const { data, error } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: Date.now().toString(),
+          email: credentials.email,
+          password: hashedPassword,
+          name: credentials.name,
+        },
+      ])
+      .select()
+      .single();
 
-    users.push(newUser);
-    await saveUsers(users);
+    if (error) {
+      if (error.code === '23505') {
+        throw new Error('Email already exists');
+      }
+      throw new Error(error.message);
+    }
 
     return {
-      id: newUser.id,
-      email: newUser.email,
-      name: newUser.name,
+      id: data.id,
+      email: data.email,
+      name: data.name,
     };
   },
 
   async login(credentials: UserLogin) {
-    const users = await loadUsers();
-    const user = users.find(user => user.email === credentials.email);
-    
-    if (!user) {
+    if (!supabase) {
+      throw new Error('Database not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', credentials.email)
+      .single();
+
+    if (error || !data) {
       throw new Error('Invalid email or password');
     }
 
-    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+    const isPasswordValid = await bcrypt.compare(credentials.password, data.password);
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
+      id: data.id,
+      email: data.email,
+      name: data.name,
     };
   },
 
   async getUserById(id: string) {
-    const users = await loadUsers();
-    const user = users.find(user => user.id === id);
-    
-    if (!user) {
+    if (!supabase) {
+      throw new Error('Database not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
       throw new Error('User not found');
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
+      id: data.id,
+      email: data.email,
+      name: data.name,
     };
   },
 };

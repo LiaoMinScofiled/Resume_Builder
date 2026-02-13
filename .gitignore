@@ -16,10 +16,14 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
+.env_bak
 
 # Database files
 dev.db
 data/
+DEPLOYMENT.md
+supabase-schema.sql
 
 # Editor directories and files
 .vscode/*

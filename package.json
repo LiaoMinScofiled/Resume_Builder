@@ -19,6 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^7.4.0",
+    "@supabase/supabase-js": "^2.95.3",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "html2canvas": "^1.4.1",
