@@ -1,14 +1,17 @@
 import bcrypt from 'bcryptjs';
+import { promises as fs } from 'fs';
+import path from 'path';
 
-// 内存存储模拟数据库
 interface User {
   id: string;
   email: string;
   password: string;
   name: string;
+  createdAt: string;
 }
 
-const users: User[] = [];
+const DATA_DIR = path.join(process.cwd(), 'data');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 export interface UserCredentials {
   email: string;
@@ -21,29 +24,51 @@ export interface UserLogin {
   password: string;
 }
 
+async function ensureDataDir() {
+  try {
+    await fs.access(DATA_DIR);
+  } catch {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+  }
+}
+
+async function loadUsers(): Promise<User[]> {
+  try {
+    await ensureDataDir();
+    const data = await fs.readFile(USERS_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    return [];
+  }
+}
+
+async function saveUsers(users: User[]): Promise<void> {
+  await ensureDataDir();
+  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
+}
+
 export const userService = {
-  // 创建用户（注册）
   async createUser(credentials: UserCredentials) {
-    // 检查邮箱是否已存在
+    const users = await loadUsers();
+    
     const existingUser = users.find(user => user.email === credentials.email);
     if (existingUser) {
       throw new Error('Email already exists');
     }
 
-    // 哈希密码
     const hashedPassword = await bcrypt.hash(credentials.password, 10);
 
-    // 创建新用户
     const newUser: User = {
       id: Date.now().toString(),
       email: credentials.email,
       password: hashedPassword,
       name: credentials.name,
+      createdAt: new Date().toISOString(),
     };
 
     users.push(newUser);
+    await saveUsers(users);
 
-    // 返回用户信息（不含密码）
     return {
       id: newUser.id,
       email: newUser.email,
@@ -51,21 +76,19 @@ export const userService = {
     };
   },
 
-  // 用户登录
   async login(credentials: UserLogin) {
-    // 查找用户
+    const users = await loadUsers();
     const user = users.find(user => user.email === credentials.email);
+    
     if (!user) {
       throw new Error('Invalid email or password');
     }
 
-    // 验证密码
     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
     }
 
-    // 返回用户信息（不含密码）
     return {
       id: user.id,
       email: user.email,
@@ -73,9 +96,10 @@ export const userService = {
     };
   },
 
-  // 根据ID获取用户
   async getUserById(id: string) {
+    const users = await loadUsers();
     const user = users.find(user => user.id === id);
+    
     if (!user) {
       throw new Error('User not found');
     }
