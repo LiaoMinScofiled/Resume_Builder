@@ -3,109 +3,151 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #1e293b;
-  --primary: #3b82f6;
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #3b82f6;
   --secondary: #64748b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--background);
   color: var(--foreground);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .resume-container {
-  @apply max-w-4xl mx-auto p-4 sm:p-6 lg:p-8;
+  @apply max-w-7xl mx-auto p-4 sm:p-6 lg:p-8;
 }
 
 .form-group {
-  @apply mb-6;
+  @apply mb-5;
 }
 
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block text-sm font-semibold text-gray-700 mb-2;
 }
 
 .form-input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white;
+}
+
+.form-input::placeholder {
+  @apply text-gray-400;
 }
 
 .form-textarea {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[100px];
+  @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 min-h-[120px] bg-white resize-y;
+}
+
+.form-textarea::placeholder {
+  @apply text-gray-400;
 }
 
 .btn {
-  @apply px-4 py-2 rounded-md font-medium transition-colors;
+  @apply px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98];
 }
 
 .btn-primary {
-  @apply bg-primary text-white hover:bg-blue-600;
+  background: linear-gradient(to right, var(--primary), var(--primary-dark));
+  color: white;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--primary));
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-secondary {
-  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+  @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300;
+}
+
+.btn-danger {
+  @apply bg-red-50 text-red-600 border border-red-200 hover:bg-red-100;
 }
 
 .card {
-  @apply bg-white rounded-lg shadow-md p-6;
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
 }
 
 .section-title {
-  @apply text-lg font-semibold mb-4 pb-2 border-b border-gray-200;
+  @apply text-lg font-bold mb-4 pb-3 border-b border-gray-100 text-gray-800;
+}
+
+.input-group {
+  @apply space-y-1;
+}
+
+.error-message {
+  @apply text-red-500 text-sm mt-1;
+}
+
+.success-message {
+  @apply text-green-600 text-sm mt-1;
 }
 
 /* 简历样式 */
 /* 现代简约风格（极简设计） */
 .resume-style-1 {
-  @apply bg-white p-8 rounded-lg shadow-sm border border-gray-100;
+  @apply bg-white p-8 rounded-xl shadow-sm border border-gray-100;
 }
 
 .resume-style-1 h1 {
-  @apply text-3xl font-bold mb-4 text-gray-900;
+  @apply text-3xl font-bold mb-4 text-gray-900 tracking-tight;
 }
 
 .resume-style-1 h2 {
-  @apply text-xl font-semibold mb-3 pb-2 border-b border-gray-100 text-gray-800;
+  @apply text-xl font-bold mb-3 pb-2 border-b-2 border-gray-100 text-gray-800;
 }
 
 .resume-style-1 h3 {
-  @apply font-medium text-gray-800;
+  @apply font-semibold text-gray-800;
 }
 
 /* 专业商务风格（传统格式） */
 .resume-style-2 {
-  @apply bg-gray-50 p-8 rounded-lg shadow-md border-l-4 border-primary;
+  @apply bg-gray-50 p-8 rounded-xl shadow-md border-l-4 border-primary;
 }
 
 .resume-style-2 h1 {
-  @apply text-3xl font-bold mb-4 text-gray-900;
+  @apply text-3xl font-bold mb-4 text-gray-900 tracking-tight;
 }
 
 .resume-style-2 h2 {
-  @apply text-xl font-semibold mb-3 pb-2 border-b border-gray-200 text-gray-800;
+  @apply text-xl font-bold mb-3 pb-2 border-b-2 border-gray-200 text-gray-800;
 }
 
 .resume-style-2 h3 {
-  @apply font-medium text-gray-800;
+  @apply font-semibold text-gray-800;
 }
 
 /* 创意设计风格（彩色、图形化） */
 .resume-style-3 {
-  @apply bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-lg shadow-lg border border-blue-100;
+  @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8 rounded-xl shadow-lg border border-blue-100;
 }
 
 .resume-style-3 h1 {
-  @apply text-3xl font-bold mb-4 text-blue-800;
+  @apply text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
 }
 
 .resume-style-3 h2 {
-  @apply text-xl font-semibold mb-3 pb-2 border-b border-blue-200 text-blue-700;
+  @apply text-xl font-bold mb-3 pb-2 border-b-2 border-blue-200 text-blue-700;
 }
 
 .resume-style-3 h3 {
-  @apply font-medium text-blue-700;
+  @apply font-semibold text-blue-700;
 }
 
 .resume-style-3 .text-gray-600 {
@@ -143,4 +185,80 @@ body {
   .resume-style-3 {
     @apply p-4;
   }
+  
+  .btn {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .card {
+    @apply p-4;
+  }
+}
+
+@media (max-width: 768px) {
+  .resume-container {
+    @apply p-3;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .resume-container {
+    @apply p-6;
+  }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* 加载动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 悬停效果增强 */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 渐变文本 */
+.text-gradient {
+  background: linear-gradient(to right, var(--primary), var(--primary-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* 卡片悬停效果 */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
 }

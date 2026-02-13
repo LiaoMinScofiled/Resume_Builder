@@ -83,15 +83,19 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 导航栏 */}
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <nav className="bg-white/80 backdrop-blur-lg shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between h-auto sm:h-16 items-center py-4 sm:py-0">
-            <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-              <h1 className="text-xl font-bold text-primary">简历生成器</h1>
+          <div className="flex flex-col sm:flex-row justify-between items-center py-4 sm:py-0 min-h-[72px]">
+            <div className="flex items-center space-x-3 mb-4 sm:mb-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center shadow-lg">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">简历生成器</h1>
             </div>
-            <div className="flex items-center space-x-4 w-full sm:w-auto">
+            <div className="flex items-center space-x-3 w-full sm:w-auto">
               <LanguageSwitcher language={language} onLanguageChange={handleLanguageChange} />
             </div>
           </div>
@@ -100,11 +104,14 @@ export default function Home() {
               <LoginForm onLogin={handleLogin} language={language} />
             </div>
           ) : (
-            <div className="mb-4 flex items-center space-x-2">
-              <span className="text-sm text-gray-600">{user.name}</span>
+            <div className="mb-4 flex items-center space-x-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-lg border border-blue-100">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-medium text-gray-700">{user.name}</span>
               <button
                 onClick={handleLogout}
-                className="btn btn-secondary text-sm"
+                className="btn btn-secondary text-xs px-3 py-1.5"
               >
                 {language === 'zh' ? '退出' : 'Logout'}
               </button>
@@ -116,10 +123,9 @@ export default function Home() {
       <main className="resume-container">
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 表单区域 */}
-            <div className="card">
+            <div className="card card-hover">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">
+                <h2 className="text-xl font-bold text-gray-800">
                   {language === 'zh' ? '简历信息' : 'Resume Information'}
                 </h2>
                 <button
@@ -138,18 +144,16 @@ export default function Home() {
               )}
             </div>
 
-            {/* 预览区域 */}
             <div className="space-y-6">
-              {/* 样式选择 */}
               <StyleSelector
                 style={resumeStyle}
                 onStyleChange={handleStyleChange}
                 language={language}
               />
               
-              <div className="card">
+              <div className="card card-hover">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold text-gray-800">
                     {language === 'zh' ? '简历预览' : 'Resume Preview'}
                   </h2>
                   <button
@@ -171,9 +175,19 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="bg-white shadow-inner mt-12 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
-          <p>© 2024 简历生成器 | Resume Builder</p>
+      <footer className="bg-white/80 backdrop-blur-lg border-t border-gray-100 mt-12 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <span className="text-gray-700 font-semibold">简历生成器</span>
+            </div>
+            <p className="text-gray-500 text-sm">© 2024 Resume Builder. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
