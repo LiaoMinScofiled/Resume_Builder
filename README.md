@@ -13,8 +13,9 @@
 
 ### 后端技术栈
 - **Next.js API Routes**：处理登录和注册请求
+- **Supabase**：PostgreSQL数据库（用户数据持久化）
 - **bcryptjs**：密码哈希加密
-- **内存存储**：模拟数据库功能（生产环境可替换为真实数据库）
+- **ip-api.com**：IP地理位置检测（自动语言切换）
 
 ## 实现原理
 
@@ -22,6 +23,7 @@
 - **客户端**：使用React组件构建用户界面，处理用户输入和表单验证
 - **服务端**：使用Next.js API Routes处理用户认证请求
 - **数据流程**：用户输入 → 状态管理 → 实时预览 → PDF生成 → 下载
+- **数据库**：Supabase PostgreSQL存储用户数据
 
 ### 2. 核心功能实现
 
@@ -46,10 +48,21 @@
 - 邮箱唯一性验证
 - 密码哈希加密存储
 - Session Cookie保持登录状态
+- Supabase数据库持久化存储
 
 #### 国际化支持
 - 中英文语言切换
 - 界面元素和简历内容双语支持
+- **IP地址自动检测**：根据用户所在国家自动设置语言
+  - 中国IP地址 → 自动设置为中文
+  - 其他国家IP地址 → 自动设置为英文
+
+#### 现代化UI设计
+- 渐变背景和按钮
+- 毛玻璃效果（backdrop-blur）
+- 卡片悬停动画
+- 优化的阴影和间距
+- 响应式布局适配移动端
 
 ## 功能特性
 
@@ -80,16 +93,25 @@
 - 中文界面
 - 英文界面
 - 简历内容双语切换
+- **IP地址自动语言检测**
 
 ### 7. 用户认证
 - 邮箱注册（自动提取用户名）
 - 邮箱登录
 - 登录状态保持
+- **数据持久化存储**
 
 ### 8. PDF导出
 - 生成格式美观的PDF简历
 - 支持多页自动分页
 - 无水印下载
+
+### 9. 现代化设计
+- 渐变色彩方案
+- 毛玻璃导航栏和页脚
+- 卡片悬停效果
+- 优化的按钮和输入框样式
+- 自定义滚动条样式
 
 ## 快速开始
 
@@ -106,38 +128,72 @@
    npm install
    ```
 
-3. **启动开发服务器**
+3. **配置环境变量**
+   复制 `.env.example` 为 `.env` 并填入 Supabase 凭证：
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件
+   ```
+
+4. **设置数据库**
+   1. 访问 [Supabase](https://supabase.com) 创建项目
+   2. 在 SQL Editor 中执行 `supabase-schema.sql`
+   3. 复制项目 URL 和 anon key 到 `.env` 文件
+
+5. **启动开发服务器**
    ```bash
    npm run dev
    ```
 
-4. **访问应用**
+6. **访问应用**
    打开浏览器访问 http://localhost:3000
 
 ### 生产环境部署
 
 推荐使用 Vercel 部署（Next.js 官方部署平台）：
 
-1. 登录 [Vercel](https://vercel.com)
-2. 导入 GitHub 仓库
-3. 配置部署设置
-4. 部署完成后访问应用
+详细步骤请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+1. **准备 Supabase 数据库**
+   - 创建 Supabase 项目
+   - 执行 `supabase-schema.sql` 创建用户表
+   - 获取项目 URL 和 anon key
+
+2. **部署到 Vercel**
+   - 登录 [Vercel](https://vercel.com)
+   - 导入 GitHub 仓库
+   - 配置环境变量：
+     - `NEXT_PUBLIC_SUPABASE_URL`
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - 部署应用
+
+3. **验证部署**
+   - 访问部署的 URL
+   - 测试用户注册和登录
+   - 验证 IP 语言检测功能
 
 ## 项目结构
 
 ```
 ├── src/
-│   ├── app/            # Next.js App Router
-│   │   ├── api/         # API路由
-│   │   ├── components/  # 组件
-│   │   └── page.tsx     # 主页面
-│   ├── components/      # 可复用组件
-│   ├── lib/            # 工具函数
-│   └── types/           # TypeScript类型定义
-├── prisma/             # 数据库配置
-├── public/             # 静态文件
-├── package.json        # 项目配置
-└── README.md           # 项目说明
+│   ├── app/                 # Next.js App Router
+│   │   ├── api/             # API路由
+│   │   │   ├── auth/        # 认证相关API
+│   │   │   └── detect-language/  # IP检测API
+│   │   ├── components/      # 组件
+│   │   ├── globals.css      # 全局样式
+│   │   └── page.tsx        # 主页面
+│   ├── components/           # 可复用组件
+│   ├── lib/                # 工具函数
+│   │   └── db.ts          # 数据库连接
+│   └── types/              # TypeScript类型定义
+├── public/                # 静态文件
+├── supabase-schema.sql    # 数据库表结构
+├── .env.example           # 环境变量模板
+├── DEPLOYMENT.md          # 部署详细指南
+├── IP_LANGUAGE_DETECTION.md  # IP语言检测说明
+├── package.json           # 项目配置
+└── README.md             # 项目说明
 ```
 
 ## 核心组件
@@ -156,6 +212,31 @@
 4. **类型安全**：使用TypeScript确保代码质量
 5. **优化的PDF生成**：支持多页自动分页，无水印
 6. **流畅的用户体验**：动画效果和交互反馈
+7. **数据持久化**：Supabase数据库存储，应用重启不丢失
+8. **智能语言检测**：根据IP地址自动设置用户语言
+9. **现代化UI**：渐变、毛玻璃、动画效果
+10. **生产就绪**：完全支持Vercel等无服务器平台部署
+
+## 环境变量
+
+```bash
+# Supabase 配置（必需）
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+## 数据库表结构
+
+### users 表
+```sql
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
 
 ## 未来扩展
 
@@ -163,8 +244,14 @@
 - [ ] 自定义颜色主题
 - [ ] 导出为其他格式（Word、HTML）
 - [ ] 简历分享功能
-- [ ] 真实数据库集成
 - [ ] 用户简历保存和管理
+- [ ] 更多国家语言支持
+- [ ] 简历模板市场
+
+## 相关文档
+
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - 详细的部署指南
+- [IP_LANGUAGE_DETECTION.md](./IP_LANGUAGE_DETECTION.md) - IP语言检测说明
 
 ## 许可证
 
@@ -173,3 +260,10 @@ MIT License
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request 来改进这个项目！
+
+## 技术支持
+
+- Next.js: https://nextjs.org/docs
+- Supabase: https://supabase.com/docs
+- Tailwind CSS: https://tailwindcss.com/docs
+- React: https://react.dev

@@ -24,6 +24,7 @@ dev.db
 data/
 DEPLOYMENT.md
 supabase-schema.sql
+IP_LANGUAGE_DETECTION.md
 
 # Editor directories and files
 .vscode/*
