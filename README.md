@@ -73,6 +73,42 @@ Basic, Scientific, and Programmer Calculator with multiple base conversions.
 - 计算过程和结果双显示
 - 实时计算
 
+### 6. 编码/解码 / Encoder/Decoder
+URL 编码/解码、Base64 编码/解码，快速转换。
+
+URL Encode/Decode, Base64 Encode/Decode, fast conversion.
+
+**功能特性 / Features:**
+- URL 编码和解码
+- Base64 编码和解码
+- 实时转换
+- 一键复制结果
+- 错误处理
+
+### 7. 密码工具 / Password Tools
+密码强度检测、安全密码生成，保护账户安全。
+
+Password strength checker, secure password generator, protect your accounts.
+
+**功能特性 / Features:**
+- 密码强度实时检测
+- 多维度密码评估（长度、大小写、数字、特殊字符）
+- 安全密码生成
+- 自定义密码长度和字符类型
+- 密码安全建议
+
+### 8. 网名/ID生成器 / Nickname/ID Generator
+古风、游戏、英文、情侣等多种风格，个性化网名生成。
+
+Ancient, game, English, couple and other styles, personalized nickname generation.
+
+**功能特性 / Features:**
+- 四种风格：古风、游戏、英文、情侣
+- 支持输入文字转化
+- 随机生成网名
+- 一键复制结果
+- 每次生成多个选项
+
 ## 技术栈 / Tech Stack
 
 ### 前端 / Frontend
@@ -179,6 +215,9 @@ Recommended to deploy using Vercel (official Next.js deployment platform):
 │   │   │   └── detect-language/  # IP 检测 API / IP Detection API
 │   │   ├── calculator/      # 计算器页面 / Calculator Page
 │   │   ├── convert/         # 繁简转换页面 / Converter Page
+│   │   ├── encoder/         # 编码/解码页面 / Encoder/Decoder Page
+│   │   ├── nickname/        # 网名/ID生成器页面 / Nickname/ID Generator Page
+│   │   ├── password/        # 密码工具页面 / Password Tools Page
 │   │   ├── qrcode/          # 二维码页面 / QR Code Page
 │   │   ├── resume/          # 简历生成器页面 / Resume Builder Page
 │   │   ├── speech/          # 语音工具页面 / Speech Tools Page

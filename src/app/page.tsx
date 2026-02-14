@@ -73,7 +73,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
           <ToolCard
             title={language === 'zh' ? '简历生成器' : 'Resume Builder'}
             description={language === 'zh' ? '创建专业美观的简历，支持多种风格、中英文切换，支持照片上传和PDF导出' : 'Create professional and beautiful resumes with multiple styles, bilingual support, photo upload and PDF export'}
@@ -132,6 +132,42 @@ export default function Home() {
             }
             href="/calculator"
             color="border-cyan-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '编码/解码' : 'Encoder/Decoder'}
+            description={language === 'zh' ? 'URL 编码/解码、Base64 编码/解码，快速转换' : 'URL Encode/Decode, Base64 Encode/Decode, fast conversion'}
+            icon={
+              <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            }
+            href="/encoder"
+            color="border-pink-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '密码工具' : 'Password Tools'}
+            description={language === 'zh' ? '密码强度检测、安全密码生成，保护账户安全' : 'Password strength checker, secure password generator, protect your accounts'}
+            icon={
+              <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            }
+            href="/password"
+            color="border-emerald-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '网名/ID生成器' : 'Nickname/ID Generator'}
+            description={language === 'zh' ? '古风、游戏、英文、情侣等多种风格，个性化网名生成' : 'Ancient, game, English, couple and other styles, personalized nickname generation'}
+            icon={
+              <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            }
+            href="/nickname"
+            color="border-rose-500"
           />
         </div>
 
