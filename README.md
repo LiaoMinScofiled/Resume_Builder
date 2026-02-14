@@ -252,6 +252,50 @@ CREATE TABLE users (
 
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - 详细的部署指南
 - [IP_LANGUAGE_DETECTION.md](./IP_LANGUAGE_DETECTION.md) - IP语言检测说明
+- [DATABASE_SETUP_CN.md](./DATABASE_SETUP_CN.md) - 数据库设置指南（中文）
+- [RLS_GUIDE.md](./RLS_GUIDE.md) - 行级安全性（RLS）完整指南
+
+## 安全性
+
+### 数据安全
+
+本项目采用多层安全机制保护用户数据：
+
+1. **密码加密**：使用bcryptjs进行密码哈希加密
+2. **Session管理**：使用HttpOnly Cookie存储用户会话
+3. **数据隔离**：确保用户只能访问自己的数据
+4. **环境变量**：敏感凭证存储在环境变量中
+
+### 行级安全性（RLS）
+
+本项目支持两种安全策略：
+
+#### 方案1：应用层权限控制（当前实现）
+- 在API端点实现权限验证
+- 用户只能访问自己的简历数据
+- 适合自定义认证系统
+
+#### 方案2：数据库层RLS（可选）
+- 使用PostgreSQL RLS策略
+- 数据库层面强制执行权限
+- 适合Supabase Auth系统
+
+**详细说明**：请参阅 [RLS_GUIDE.md](./RLS_GUIDE.md) 了解：
+- RLS的作用和工作原理
+- 如何开启和禁用RLS
+- 生产环境部署指南
+- 常见问题和解决方案
+
+### 生产环境部署安全检查
+
+部署到生产环境前，请确保：
+
+- [ ] 已配置环境变量（不使用默认值）
+- [ ] 已实现权限控制（应用层或RLS）
+- [ ] 已测试用户隔离功能
+- [ ] 已移除调试日志
+- [ ] 已配置HTTPS
+- [ ] 已设置适当的CORS策略
 
 ## 许可证
 

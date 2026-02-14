@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ResumeData, Education, Experience, Skill } from '@/types/resume';
+import CollapsibleSection from './CollapsibleSection';
 
 interface ResumeFormProps {
   resumeData: ResumeData;
@@ -111,10 +112,12 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* 个人信息 */}
-      <section>
-        <h3 className="section-title">{language === 'zh' ? '个人信息' : 'Personal Information'}</h3>
+      <CollapsibleSection
+        title={language === 'zh' ? '个人信息' : 'Personal Information'}
+        defaultExpanded={true}
+      >
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-group">
@@ -170,10 +173,13 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
             />
           </div>
         </div>
-      </section>
+      </CollapsibleSection>
 
       {/* 教育背景 */}
-      <section>
+      <CollapsibleSection
+        title={language === 'zh' ? '教育背景' : 'Education'}
+        defaultExpanded={true}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="section-title">{language === 'zh' ? '教育背景' : 'Education'}</h3>
           <button
@@ -261,10 +267,13 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
             </div>
           </div>
         ))}
-      </section>
+      </CollapsibleSection>
 
       {/* 工作经历 */}
-      <section>
+      <CollapsibleSection
+        title={language === 'zh' ? '工作经历' : 'Experience'}
+        defaultExpanded={false}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="section-title">{language === 'zh' ? '工作经历' : 'Experience'}</h3>
           <button
@@ -340,10 +349,13 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
             </div>
           </div>
         ))}
-      </section>
+      </CollapsibleSection>
 
       {/* 技能 */}
-      <section>
+      <CollapsibleSection
+        title={language === 'zh' ? '技能' : 'Skills'}
+        defaultExpanded={false}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="section-title">{language === 'zh' ? '技能' : 'Skills'}</h3>
           <button
@@ -354,27 +366,28 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
           </button>
         </div>
         {resumeData.skills.map((skill) => (
-            <div key={skill.id} className="card mb-4">
-              <div className="flex justify-between items-start mb-4">
-                <h4 className="font-medium">{language === 'zh' ? '技能' : 'Skill'}</h4>
-                <button
-                  onClick={() => removeSkill(skill.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  {language === 'zh' ? '删除' : 'Delete'}
-                </button>
-              </div>
-              <div className="form-group">
-                <textarea
-                  className="form-textarea"
-                  value={skill.description}
-                  onChange={(e) => updateSkill(skill.id, e.target.value)}
-                  placeholder={language === 'zh' ? '请输入技能描述' : 'Enter skill description'}
-                />
-              </div>
+          <div key={skill.id} className="card mb-4">
+            <div className="flex justify-between items-start mb-4">
+              <h4 className="font-medium">{language === 'zh' ? '技能' : 'Skill'}</h4>
+              <button
+                onClick={() => removeSkill(skill.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                {language === 'zh' ? '删除' : 'Delete'}
+              </button>
             </div>
-          ))}
-      </section>
+            <div className="form-group">
+              <label className="form-label">{language === 'zh' ? '描述' : 'Description'}</label>
+              <textarea
+                className="form-textarea"
+                value={skill.description}
+                onChange={(e) => updateSkill(skill.id, e.target.value)}
+                placeholder={language === 'zh' ? '请输入技能描述' : 'Enter skill description'}
+              />
+            </div>
+          </div>
+        ))}
+      </CollapsibleSection>
     </div>
   );
 };

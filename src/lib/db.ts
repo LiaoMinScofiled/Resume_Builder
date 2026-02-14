@@ -109,3 +109,101 @@ export const userService = {
     };
   },
 };
+
+export const resumeService = {
+  async saveResume(userId: string, resumeData: any, style: string) {
+    if (!supabase) {
+      throw new Error('Database not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
+    }
+
+    const { data: existingData, error: fetchError } = await supabase
+      .from('resumes')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Error fetching existing resume:', fetchError.message);
+      throw new Error(`Failed to check existing resume: ${fetchError.message}`);
+    }
+
+    let result;
+
+    if (existingData) {
+      const { data, error } = await supabase
+        .from('resumes')
+        .update({
+          resume_data: resumeData,
+          style: style,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating resume:', error.message);
+        throw new Error(`Failed to update resume: ${error.message}`);
+      }
+      result = data;
+    } else {
+      const { data, error } = await supabase
+        .from('resumes')
+        .insert([
+          {
+            id: Date.now().toString(),
+            user_id: userId,
+            resume_data: resumeData,
+            style: style,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error inserting resume:', error.message);
+        throw new Error(`Failed to create resume: ${error.message}`);
+      }
+      result = data;
+    }
+
+    return {
+      id: result.id,
+      userId: result.user_id,
+      resumeData: result.resume_data,
+      style: result.style,
+    };
+  },
+
+  async getResumeByUserId(userId: string) {
+    if (!supabase) {
+      throw new Error('Database not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
+    }
+
+    const { data, error } = await supabase
+      .from('resumes')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(error.message);
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      userId: data.user_id,
+      resumeData: data.resume_data,
+      style: data.style,
+    };
+  },
+};

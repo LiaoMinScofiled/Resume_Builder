@@ -8,6 +8,10 @@ import ResumePreview from '@/components/ResumePreview';
 import LoginForm from '@/components/LoginForm';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import StyleSelector from '@/components/StyleSelector';
+import Modal from '@/components/Modal';
+import SaveButton from '@/components/SaveButton';
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 // 模拟用户数据
 const mockUser: User | null = null;
@@ -31,22 +35,135 @@ export default function Home() {
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [resumeStyle, setResumeStyle] = useState<ResumeStyle>('style-1');
   const [language, setLanguage] = useState<Language>('zh');
-  const [isPreview, setIsPreview] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isLanguageDetected, setIsLanguageDetected] = useState(false);
+  const [isLoadingResume, setIsLoadingResume] = useState(false);
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
   const handleLogin = (userData: User) => {
     setUser(userData);
-    // 设置Session Cookie
     document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=86400; sameSite=lax`;
+    setSaveStatus('idle');
+    loadUserResume(userData.id);
   };
 
   const handleLogout = () => {
     setUser(null);
-    // 清除Session Cookie
+    setResumeData(initialResumeData);
+    setResumeStyle('style-1');
+    setSaveStatus('idle');
     document.cookie = `user=; path=/; max-age=0; sameSite=lax`;
   };
 
-  // 从Session Cookie加载用户
+  const loadUserResume = async (userId: string) => {
+    setIsLoadingResume(true);
+    setSaveStatus('idle');
+    try {
+      const response = await fetch(`/api/resume/load?userId=${userId}`);
+      const data = await response.json();
+      
+      if (data && data.resumeData) {
+        setResumeData(data.resumeData);
+        if (data.style) {
+          setResumeStyle(data.style);
+        }
+      } else {
+        setResumeData(initialResumeData);
+        setResumeStyle('style-1');
+      }
+    } catch (error) {
+      console.error('Failed to load resume:', error);
+      setResumeData(initialResumeData);
+      setResumeStyle('style-1');
+    } finally {
+      setIsLoadingResume(false);
+    }
+  };
+
+  const saveResume = async () => {
+    if (!user) return;
+    
+    setSaveStatus('saving');
+    
+    try {
+      const response = await fetch('/api/resume/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          resumeData: resumeData,
+          style: resumeStyle,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSaveStatus('saved');
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 2000);
+      } else {
+        console.error('Save failed:', data);
+        setSaveStatus('error');
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Failed to save resume:', error);
+      setSaveStatus('error');
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    }
+  };
+
+  const handleResumeDataChange = (data: ResumeData) => {
+    setResumeData(data);
+    
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+    
+    const timeout = setTimeout(() => {
+      saveResume();
+    }, 1000);
+    
+    setAutoSaveTimeout(timeout);
+  };
+
+  const handleStyleChange = (style: ResumeStyle) => {
+    setResumeStyle(style);
+    saveResume();
+  };
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    setIsLanguageDetected(true);
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!user) return;
+    await generatePDF('resume-preview-modal', `resume-${resumeData.personalInfo.name || 'user'}`);
+  };
+
+  const handleDownloadPDFInline = async () => {
+    if (!user) return;
+    await generatePDF('resume-preview-inline', `resume-${resumeData.personalInfo.name || 'user'}`);
+  };
+
+  const openPreviewModal = () => {
+    setIsPreviewModalOpen(true);
+  };
+
+  const closePreviewModal = () => {
+    setIsPreviewModalOpen(false);
+  };
+
   useEffect(() => {
     const cookieUser = document.cookie
       .split('; ')
@@ -56,13 +173,13 @@ export default function Home() {
       try {
         const userData = JSON.parse(decodeURIComponent(cookieUser));
         setUser(userData);
+        loadUserResume(userData.id);
       } catch (e) {
         console.error('Failed to parse user cookie:', e);
       }
     }
   }, []);
 
-  // 根据IP地址自动检测语言
   useEffect(() => {
     const detectLanguage = async () => {
       try {
@@ -81,27 +198,13 @@ export default function Home() {
     detectLanguage();
   }, [isLanguageDetected]);
 
-  const handleResumeDataChange = (data: ResumeData) => {
-    setResumeData(data);
-  };
-
-  const handleStyleChange = (style: ResumeStyle) => {
-    setResumeStyle(style);
-  };
-
-  const handleLanguageChange = (lang: Language) => {
-    setLanguage(lang);
-    setIsLanguageDetected(true);
-  };
-
-  const handleDownloadPDF = async () => {
-    if (!user) return;
-    await generatePDF('resume-preview', `resume-${resumeData.personalInfo.name || 'user'}`);
-  };
-
-  const togglePreview = () => {
-    setIsPreview(!isPreview);
-  };
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+    };
+  }, [autoSaveTimeout]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -151,14 +254,27 @@ export default function Home() {
                 <h2 className="text-xl font-bold text-gray-800">
                   {language === 'zh' ? '简历信息' : 'Resume Information'}
                 </h2>
-                <button
-                  onClick={togglePreview}
-                  className="btn btn-primary"
-                >
-                  {isPreview ? (language === 'zh' ? '返回编辑' : 'Back to Edit') : (language === 'zh' ? '预览简历' : 'Preview Resume')}
-                </button>
+                <div className="flex items-center space-x-3">
+                  <SaveButton
+                    status={saveStatus}
+                    onClick={saveResume}
+                    language={language}
+                  />
+                  <button
+                    onClick={openPreviewModal}
+                    className="btn btn-primary"
+                  >
+                    {language === 'zh' ? '全屏预览' : 'Full Preview'}
+                  </button>
+                </div>
               </div>
-              {!isPreview && (
+              {isLoadingResume ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-gray-500">
+                    {language === 'zh' ? '加载中...' : 'Loading...'}
+                  </div>
+                </div>
+              ) : (
                 <ResumeForm
                   resumeData={resumeData}
                   onResumeDataChange={handleResumeDataChange}
@@ -180,18 +296,20 @@ export default function Home() {
                     {language === 'zh' ? '简历预览' : 'Resume Preview'}
                   </h2>
                   <button
-                    onClick={handleDownloadPDF}
+                    onClick={handleDownloadPDFInline}
                     className="btn btn-primary"
                     disabled={!user}
                   >
                     {!user ? (language === 'zh' ? '登录后下载' : 'Login to Download') : (language === 'zh' ? '下载PDF' : 'Download PDF')}
                   </button>
                 </div>
-                <ResumePreview
-                  resumeData={resumeData}
-                  style={resumeStyle}
-                  language={language}
-                />
+                <div id="resume-preview-inline" className="bg-white p-4 rounded-lg shadow-inner border border-gray-100 overflow-auto max-h-[600px]">
+                  <ResumePreview
+                    resumeData={resumeData}
+                    style={resumeStyle}
+                    language={language}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -215,6 +333,32 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      <Modal
+        isOpen={isPreviewModalOpen}
+        onClose={closePreviewModal}
+        title={language === 'zh' ? '简历预览' : 'Resume Preview'}
+        size="xl"
+      >
+        <div className="space-y-4">
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleDownloadPDF}
+              className="btn btn-primary"
+              disabled={!user}
+            >
+              {!user ? (language === 'zh' ? '登录后下载' : 'Login to Download') : (language === 'zh' ? '下载PDF' : 'Download PDF')}
+            </button>
+          </div>
+          <div id="resume-preview-modal" className="bg-white p-8 rounded-lg shadow-lg">
+            <ResumePreview
+              resumeData={resumeData}
+              style={resumeStyle}
+              language={language}
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

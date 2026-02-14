@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+supabase/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -22,9 +23,12 @@ out/
 # Database files
 dev.db
 data/
-DEPLOYMENT.md
+#DEPLOYMENT.md
 supabase-schema.sql
-IP_LANGUAGE_DETECTION.md
+#IP_LANGUAGE_DETECTION.md
+DATABASE_SETUP.md
+DATABASE_SETUP_CN.md
+RLS_GUIDE.md
 
 # Editor directories and files
 .vscode/*
