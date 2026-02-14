@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { AppProvider } from '@/contexts/AppContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '简历生成器',
-  description: '创建专业美观的简历，支持多种风格和中英文切换',
+  title: '在线工具箱',
+  description: '提供各种在线工具，包括简历生成器、二维码生成器等，让工作更高效',
 }
 
 export default function RootLayout({
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={inter.className}>
-        {children}
+        <AppProvider>
+          {children}
+        </AppProvider>
       </body>
     </html>
   )

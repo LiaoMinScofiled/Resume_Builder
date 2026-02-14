@@ -79,66 +79,79 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, language }) => {
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {isRegistering ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input
-              type="email"
-              placeholder={language === 'zh' ? '邮箱地址' : 'Email Address'}
-              className="form-input text-sm"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder={language === 'zh' ? '密码' : 'Password'}
-              className="form-input text-sm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'zh' ? '邮箱地址' : 'Email Address'}
+              </label>
+              <input
+                type="email"
+                placeholder={language === 'zh' ? '请输入邮箱地址' : 'Enter email address'}
+                className="form-input text-base w-full"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'zh' ? '密码' : 'Password'}
+              </label>
+              <input
+                type="password"
+                placeholder={language === 'zh' ? '请输入密码' : 'Enter password'}
+                className="form-input text-base w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              placeholder={language === 'zh' ? '邮箱地址' : 'Email Address'}
-              className="form-input text-sm flex-1"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder={language === 'zh' ? '密码' : 'Password'}
-              className="form-input text-sm flex-1"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="btn btn-primary text-sm whitespace-nowrap px-6"
-              disabled={isLoading}
-            >
-              {isLoading ? (language === 'zh' ? '登录中...' : 'Logging in...') : (language === 'zh' ? '登录' : 'Login')}
-            </button>
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'zh' ? '邮箱地址' : 'Email Address'}
+              </label>
+              <input
+                type="email"
+                placeholder={language === 'zh' ? '请输入邮箱地址' : 'Enter email address'}
+                className="form-input text-base w-full"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'zh' ? '密码' : 'Password'}
+              </label>
+              <input
+                type="password"
+                placeholder={language === 'zh' ? '请输入密码' : 'Enter password'}
+                className="form-input text-base w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </div>
         )}
         {error && (
-          <div className="flex items-center space-x-2 text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center space-x-2 text-red-500 text-sm bg-red-50 px-4 py-3 rounded-lg border border-red-200">
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{error}</span>
           </div>
         )}
-        {isRegistering && (
-          <div className="flex items-center justify-between">
+        {isRegistering ? (
+          <div className="space-y-4">
             <button
               type="submit"
-              className="btn btn-primary text-sm whitespace-nowrap px-6"
+              className="btn btn-primary text-base w-full py-3"
               disabled={isLoading}
             >
               {isLoading ? (language === 'zh' ? '处理中...' : 'Processing...') : (language === 'zh' ? '注册' : 'Register')}
@@ -146,20 +159,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, language }) => {
             <button
               type="button"
               onClick={toggleMode}
-              className="text-sm text-primary hover:text-primary-dark font-medium whitespace-nowrap"
+              className="text-sm text-primary hover:text-primary-dark font-medium w-full text-center"
             >
               {language === 'zh' ? '已有账号？登录' : 'Have account? Login'}
             </button>
           </div>
-        )}
-        {!isRegistering && (
-          <button
-            type="button"
-            onClick={toggleMode}
-            className="text-sm text-primary hover:text-primary-dark font-medium"
-          >
-            {language === 'zh' ? '没有账号？注册' : 'No account? Register'}
-          </button>
+        ) : (
+          <div className="space-y-4">
+            <button
+              type="submit"
+              className="btn btn-primary text-base w-full py-3"
+              disabled={isLoading}
+            >
+              {isLoading ? (language === 'zh' ? '登录中...' : 'Logging in...') : (language === 'zh' ? '登录' : 'Login')}
+            </button>
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="text-sm text-primary hover:text-primary-dark font-medium w-full text-center"
+            >
+              {language === 'zh' ? '没有账号？注册' : 'No account? Register'}
+            </button>
+          </div>
         )}
       </form>
     </div>

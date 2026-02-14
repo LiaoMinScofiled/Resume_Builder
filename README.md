@@ -1,233 +1,239 @@
-# 简历生成器
+# 在线工具箱 / Online Tools
 
-一个基于 Next.js + React 的现代简历生成器，支持用户创建、预览和下载专业美观的PDF简历。
+一个功能丰富的在线工具集合，提供简历生成、二维码生成解析、繁简转换、语音工具和计算器等多种实用工具。
 
-## 技术框架
+A comprehensive collection of online tools including resume builder, QR code generator/scanner, Traditional/Simplified Chinese converter, speech tools, and calculator.
 
-### 前端技术栈
+## 项目简介 / Project Overview
+
+在线工具箱是一个基于 Next.js 的现代化 Web 应用，集成了多种常用工具，帮助用户提高工作效率。所有工具都支持中英文界面，部分功能需要用户登录后使用。
+
+Online Tools is a modern web application built with Next.js that integrates various useful tools to help users improve productivity. All tools support bilingual interfaces (Chinese/English), and some features require user login.
+
+## 工具列表 / Tools List
+
+### 1. 简历生成器 / Resume Builder
+创建专业美观的简历，支持多种风格、中英文切换、照片上传和 PDF 导出。
+
+Create professional and beautiful resumes with multiple styles, bilingual support, photo upload, and PDF export.
+
+**功能特性 / Features:**
+- 个人信息管理（姓名、邮箱、电话、性别、年龄、照片）
+- 教育背景和工作经历管理
+- 技能管理
+- 三种简历风格：现代简约、专业商务、创意设计
+- 实时预览
+- PDF 导出（无水印）
+
+### 2. 二维码生成解析器 / QR Code Generator & Scanner
+生成自定义二维码，支持自定义颜色、大小和样式，同时支持二维码解析。
+
+Generate custom QR codes with custom colors, sizes, and styles, also supports QR code scanning.
+
+**功能特性 / Features:**
+- 生成二维码（文本、链接等）
+- 自定义颜色和大小
+- 扫描二维码（上传图片）
+- 解析二维码内容
+- 下载功能（需登录）
+
+### 3. 繁简转换 / Traditional/Simplified Converter
+中文繁体和简体相互转换，支持大段文本处理，快速准确。
+
+Convert between Traditional and Simplified Chinese, supports large text processing, fast and accurate.
+
+**功能特性 / Features:**
+- 繁体转简体
+- 简体转繁体
+- 实时转换
+- 一键复制结果
+- 访问限制（需登录 + 中文模式）
+
+### 4. 语音工具 / Speech Tools
+文字转语音、语音转文字，支持多种语音和语言，实时转换。
+
+Text to Speech, Speech to Text, supports multiple voices and languages, real-time conversion.
+
+**功能特性 / Features:**
+- 文字转语音（TTS）
+- 语音转文字（STT）
+- 多种语音选择
+- 录音功能
+- 音频播放和下载
+
+### 5. 计算器 / Calculator
+日常计算、科学计算、程序员计算，支持多种进制转换。
+
+Basic, Scientific, and Programmer Calculator with multiple base conversions.
+
+**功能特性 / Features:**
+- 日常计算（加、减、乘、除）
+- 科学计算（三角函数、对数、阶乘等）
+- 程序员计算（多进制转换）
+- 计算过程和结果双显示
+- 实时计算
+
+## 技术栈 / Tech Stack
+
+### 前端 / Frontend
 - **Next.js 14**：React 框架，支持服务端渲染和静态站点生成
-- **React 18**：前端UI库
-- **TypeScript**：类型安全的JavaScript超集
-- **Tailwind CSS**：实用优先的CSS框架
-- **HTML2Canvas + jsPDF**：PDF生成和下载
+- **React 18**：前端 UI 库
+- **TypeScript**：类型安全的 JavaScript 超集
+- **Tailwind CSS**：实用优先的 CSS 框架
+- **HTML2Canvas + jsPDF**：PDF 生成和下载
+- **qrcode**：二维码生成
+- **jsQR**：二维码解析
+- **opencc-js**：繁简转换
+- **Web Speech API**：语音识别和合成
 
-### 后端技术栈
-- **Next.js API Routes**：处理登录和注册请求
-- **Supabase**：PostgreSQL数据库（用户数据持久化）
+### 后端 / Backend
+- **Next.js API Routes**：处理登录、注册和语言检测请求
+- **Supabase**：PostgreSQL 数据库（用户数据持久化）
 - **bcryptjs**：密码哈希加密
-- **ip-api.com**：IP地理位置检测（自动语言切换）
+- **ip-api.com**：IP 地理位置检测（自动语言切换）
 
-## 实现原理
+## 功能特性 / Features
 
-### 1. 项目架构
-- **客户端**：使用React组件构建用户界面，处理用户输入和表单验证
-- **服务端**：使用Next.js API Routes处理用户认证请求
-- **数据流程**：用户输入 → 状态管理 → 实时预览 → PDF生成 → 下载
-- **数据库**：Supabase PostgreSQL存储用户数据
+### 通用功能 / Common Features
+- **中英文双语界面**：支持中文和英文界面切换
+- **IP 地址自动语言检测**：根据用户所在国家自动设置语言
+  - 中国 IP 地址 → 自动设置为中文
+  - 其他国家 IP 地址 → 自动设置为英文
+- **用户认证**：邮箱注册和登录
+- **数据持久化**：用户数据存储在 Supabase 数据库
+- **响应式设计**：适配不同屏幕尺寸
+- **现代化 UI**：渐变背景、毛玻璃效果、动画效果
 
-### 2. 核心功能实现
+### 访问控制 / Access Control
+部分功能需要用户登录后才能使用：
+- 二维码下载
+- 繁简转换（还需选择中文模式）
 
-#### 简历数据管理
-- 使用React useState管理简历数据状态
-- 支持添加、编辑、删除教育背景、工作经历和技能
-- 实时更新预览内容
+## 快速开始 / Quick Start
 
-#### 多风格支持
-- 三种预设简历风格：现代简约、专业商务、创意设计
-- 使用Tailwind CSS实现不同风格的样式
-- 风格切换实时生效
+### 开发环境 / Development Environment
 
-#### PDF生成
-- 使用HTML2Canvas将简历预览转换为图片
-- 使用jsPDF将图片转换为PDF文件
-- 支持多页自动分页
-- 无水印导出
-
-#### 用户认证
-- 邮箱和密码登录/注册
-- 邮箱唯一性验证
-- 密码哈希加密存储
-- Session Cookie保持登录状态
-- Supabase数据库持久化存储
-
-#### 国际化支持
-- 中英文语言切换
-- 界面元素和简历内容双语支持
-- **IP地址自动检测**：根据用户所在国家自动设置语言
-  - 中国IP地址 → 自动设置为中文
-  - 其他国家IP地址 → 自动设置为英文
-
-#### 现代化UI设计
-- 渐变背景和按钮
-- 毛玻璃效果（backdrop-blur）
-- 卡片悬停动画
-- 优化的阴影和间距
-- 响应式布局适配移动端
-
-## 功能特性
-
-### 1. 个人信息管理
-- 姓名、邮箱、电话、地址输入
-- 个人简介编辑（支持换行）
-
-### 2. 教育背景
-- 添加多个教育经历
-- 学校、学位、专业、起止日期、描述
-- 支持多行描述
-
-### 3. 工作经历
-- 添加多个工作经历
-- 公司、职位、起止日期、描述
-- 支持多行描述
-
-### 4. 技能管理
-- 添加多个技能
-- 技能描述（支持多行）
-
-### 5. 简历风格
-- 现代简约风格：极简设计，干净整洁
-- 专业商务风格：传统格式，专业稳重
-- 创意设计风格：彩色渐变，图形化设计
-
-### 6. 语言支持
-- 中文界面
-- 英文界面
-- 简历内容双语切换
-- **IP地址自动语言检测**
-
-### 7. 用户认证
-- 邮箱注册（自动提取用户名）
-- 邮箱登录
-- 登录状态保持
-- **数据持久化存储**
-
-### 8. PDF导出
-- 生成格式美观的PDF简历
-- 支持多页自动分页
-- 无水印下载
-
-### 9. 现代化设计
-- 渐变色彩方案
-- 毛玻璃导航栏和页脚
-- 卡片悬停效果
-- 优化的按钮和输入框样式
-- 自定义滚动条样式
-
-## 快速开始
-
-### 开发环境
-
-1. **克隆仓库**
+1. **克隆仓库 / Clone Repository**
    ```bash
    git clone <repository-url>
-   cd resume-builder
+   cd Resumer_Builder
    ```
 
-2. **安装依赖**
+2. **安装依赖 / Install Dependencies**
    ```bash
    npm install
    ```
 
-3. **配置环境变量**
+3. **配置环境变量 / Configure Environment Variables**
    复制 `.env.example` 为 `.env` 并填入 Supabase 凭证：
+   Copy `.env.example` to `.env` and fill in Supabase credentials:
    ```bash
    cp .env.example .env
-   # 编辑 .env 文件
+   # 编辑 .env 文件 / Edit .env file
    ```
 
-4. **设置数据库**
+4. **设置数据库 / Setup Database**
    1. 访问 [Supabase](https://supabase.com) 创建项目
    2. 在 SQL Editor 中执行 `supabase-schema.sql`
    3. 复制项目 URL 和 anon key 到 `.env` 文件
 
-5. **启动开发服务器**
+5. **启动开发服务器 / Start Development Server**
    ```bash
    npm run dev
    ```
 
-6. **访问应用**
+6. **访问应用 / Access Application**
    打开浏览器访问 http://localhost:3000
+   Open browser and visit http://localhost:3000
 
-### 生产环境部署
+### 生产环境部署 / Production Deployment
 
 推荐使用 Vercel 部署（Next.js 官方部署平台）：
+Recommended to deploy using Vercel (official Next.js deployment platform):
 
-详细步骤请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)
+1. **准备 Supabase 数据库 / Prepare Supabase Database**
+   - 创建 Supabase 项目 / Create Supabase project
+   - 执行 `supabase-schema.sql` 创建用户表 / Execute `supabase-schema.sql` to create user table
+   - 获取项目 URL 和 anon key / Get project URL and anon key
 
-1. **准备 Supabase 数据库**
-   - 创建 Supabase 项目
-   - 执行 `supabase-schema.sql` 创建用户表
-   - 获取项目 URL 和 anon key
-
-2. **部署到 Vercel**
-   - 登录 [Vercel](https://vercel.com)
-   - 导入 GitHub 仓库
-   - 配置环境变量：
+2. **部署到 Vercel / Deploy to Vercel**
+   - 登录 [Vercel](https://vercel.com) / Login to [Vercel](https://vercel.com)
+   - 导入 GitHub 仓库 / Import GitHub repository
+   - 配置环境变量 / Configure environment variables:
      - `NEXT_PUBLIC_SUPABASE_URL`
      - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - 部署应用
+   - 部署应用 / Deploy application
 
-3. **验证部署**
-   - 访问部署的 URL
-   - 测试用户注册和登录
-   - 验证 IP 语言检测功能
+3. **验证部署 / Verify Deployment**
+   - 访问部署的 URL / Visit deployed URL
+   - 测试用户注册和登录 / Test user registration and login
+   - 验证 IP 语言检测功能 / Verify IP language detection
 
-## 项目结构
+## 项目结构 / Project Structure
 
 ```
 ├── src/
 │   ├── app/                 # Next.js App Router
-│   │   ├── api/             # API路由
-│   │   │   ├── auth/        # 认证相关API
-│   │   │   └── detect-language/  # IP检测API
-│   │   ├── components/      # 组件
-│   │   ├── globals.css      # 全局样式
-│   │   └── page.tsx        # 主页面
-│   ├── components/           # 可复用组件
-│   ├── lib/                # 工具函数
-│   │   └── db.ts          # 数据库连接
-│   └── types/              # TypeScript类型定义
-├── public/                # 静态文件
-├── supabase-schema.sql    # 数据库表结构
-├── .env.example           # 环境变量模板
-├── DEPLOYMENT.md          # 部署详细指南
-├── IP_LANGUAGE_DETECTION.md  # IP语言检测说明
-├── package.json           # 项目配置
-└── README.md             # 项目说明
+│   │   ├── api/             # API 路由 / API Routes
+│   │   │   ├── auth/        # 认证相关 API / Auth APIs
+│   │   │   └── detect-language/  # IP 检测 API / IP Detection API
+│   │   ├── calculator/      # 计算器页面 / Calculator Page
+│   │   ├── convert/         # 繁简转换页面 / Converter Page
+│   │   ├── qrcode/          # 二维码页面 / QR Code Page
+│   │   ├── resume/          # 简历生成器页面 / Resume Builder Page
+│   │   ├── speech/          # 语音工具页面 / Speech Tools Page
+│   │   ├── components/      # 页面组件 / Page Components
+│   │   ├── globals.css      # 全局样式 / Global Styles
+│   │   └── page.tsx        # 主页面 / Main Page
+│   ├── components/           # 可复用组件 / Reusable Components
+│   │   ├── LoginForm.tsx    # 登录表单 / Login Form
+│   │   ├── LanguageSwitcher.tsx  # 语言切换器 / Language Switcher
+│   │   └── ToolCard.tsx     # 工具卡片 / Tool Card
+│   ├── contexts/            # React Context
+│   │   └── AppContext.tsx   # 应用全局状态 / App Global State
+│   ├── lib/                # 工具函数 / Utility Functions
+│   │   └── db.ts          # 数据库连接 / Database Connection
+│   └── types/              # TypeScript 类型定义 / TypeScript Type Definitions
+├── public/                # 静态文件 / Static Files
+├── supabase-schema.sql    # 数据库表结构 / Database Schema
+├── .env.example           # 环境变量模板 / Environment Variables Template
+├── package.json           # 项目配置 / Project Configuration
+└── README.md             # 项目说明 / Project Documentation
 ```
 
-## 核心组件
+## 核心组件 / Core Components
 
-- **ResumeForm**：简历信息输入表单
-- **ResumePreview**：简历实时预览
-- **LoginForm**：用户登录和注册
-- **LanguageSwitcher**：语言切换
-- **StyleSelector**：简历风格选择
+- **ResumeForm**：简历信息输入表单 / Resume Information Input Form
+- **ResumePreview**：简历实时预览 / Resume Real-time Preview
+- **LoginForm**：用户登录和注册 / User Login and Registration
+- **LanguageSwitcher**：语言切换 / Language Switching
+- **ToolCard**：工具卡片组件 / Tool Card Component
+- **AppContext**：应用全局状态管理 / App Global State Management
 
-## 技术亮点
+## 技术亮点 / Technical Highlights
 
-1. **实时预览**：用户输入时实时更新简历预览
-2. **响应式设计**：适配不同屏幕尺寸
-3. **模块化组件**：代码结构清晰，易于维护
-4. **类型安全**：使用TypeScript确保代码质量
-5. **优化的PDF生成**：支持多页自动分页，无水印
-6. **流畅的用户体验**：动画效果和交互反馈
-7. **数据持久化**：Supabase数据库存储，应用重启不丢失
-8. **智能语言检测**：根据IP地址自动设置用户语言
-9. **现代化UI**：渐变、毛玻璃、动画效果
-10. **生产就绪**：完全支持Vercel等无服务器平台部署
+1. **实时预览 / Real-time Preview**：用户输入时实时更新预览
+2. **响应式设计 / Responsive Design**：适配不同屏幕尺寸
+3. **模块化组件 / Modular Components**：代码结构清晰，易于维护
+4. **类型安全 / Type Safety**：使用 TypeScript 确保代码质量
+5. **优化的 PDF 生成 / Optimized PDF Generation**：支持多页自动分页，无水印
+6. **流畅的用户体验 / Smooth User Experience**：动画效果和交互反馈
+7. **数据持久化 / Data Persistence**：Supabase 数据库存储，应用重启不丢失
+8. **智能语言检测 / Smart Language Detection**：根据 IP 地址自动设置用户语言
+9. **现代化 UI / Modern UI**：渐变、毛玻璃、动画效果
+10. **生产就绪 / Production Ready**：完全支持 Vercel 等无服务器平台部署
 
-## 环境变量
+## 环境变量 / Environment Variables
 
 ```bash
-# Supabase 配置（必需）
+# Supabase 配置（必需） / Supabase Configuration (Required)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-## 数据库表结构
+## 数据库表结构 / Database Schema
 
-### users 表
+### users 表 / users Table
 ```sql
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
@@ -238,74 +244,50 @@ CREATE TABLE users (
 );
 ```
 
-## 未来扩展
+## 安全性 / Security
 
-- [ ] 更多简历模板
-- [ ] 自定义颜色主题
-- [ ] 导出为其他格式（Word、HTML）
-- [ ] 简历分享功能
-- [ ] 用户简历保存和管理
-- [ ] 更多国家语言支持
-- [ ] 简历模板市场
-
-## 相关文档
-
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - 详细的部署指南
-- [IP_LANGUAGE_DETECTION.md](./IP_LANGUAGE_DETECTION.md) - IP语言检测说明
-- [DATABASE_SETUP_CN.md](./DATABASE_SETUP_CN.md) - 数据库设置指南（中文）
-- [RLS_GUIDE.md](./RLS_GUIDE.md) - 行级安全性（RLS）完整指南
-
-## 安全性
-
-### 数据安全
+### 数据安全 / Data Security
 
 本项目采用多层安全机制保护用户数据：
+This project uses multiple security mechanisms to protect user data:
 
-1. **密码加密**：使用bcryptjs进行密码哈希加密
-2. **Session管理**：使用HttpOnly Cookie存储用户会话
-3. **数据隔离**：确保用户只能访问自己的数据
-4. **环境变量**：敏感凭证存储在环境变量中
+1. **密码加密 / Password Encryption**：使用 bcryptjs 进行密码哈希加密
+2. **Session 管理 / Session Management**：使用 HttpOnly Cookie 存储用户会话
+3. **数据隔离 / Data Isolation**：确保用户只能访问自己的数据
+4. **环境变量 / Environment Variables**：敏感凭证存储在环境变量中
 
-### 行级安全性（RLS）
-
-本项目支持两种安全策略：
-
-#### 方案1：应用层权限控制（当前实现）
-- 在API端点实现权限验证
-- 用户只能访问自己的简历数据
-- 适合自定义认证系统
-
-#### 方案2：数据库层RLS（可选）
-- 使用PostgreSQL RLS策略
-- 数据库层面强制执行权限
-- 适合Supabase Auth系统
-
-**详细说明**：请参阅 [RLS_GUIDE.md](./RLS_GUIDE.md) 了解：
-- RLS的作用和工作原理
-- 如何开启和禁用RLS
-- 生产环境部署指南
-- 常见问题和解决方案
-
-### 生产环境部署安全检查
+### 生产环境部署安全检查 / Production Deployment Security Checklist
 
 部署到生产环境前，请确保：
+Before deploying to production, ensure:
 
-- [ ] 已配置环境变量（不使用默认值）
-- [ ] 已实现权限控制（应用层或RLS）
-- [ ] 已测试用户隔离功能
-- [ ] 已移除调试日志
-- [ ] 已配置HTTPS
-- [ ] 已设置适当的CORS策略
+- [ ] 已配置环境变量（不使用默认值）/ Environment variables configured (no default values)
+- [ ] 已实现权限控制 / Access control implemented
+- [ ] 已测试用户隔离功能 / User isolation tested
+- [ ] 已移除调试日志 / Debug logs removed
+- [ ] 已配置 HTTPS / HTTPS configured
+- [ ] 已设置适当的 CORS 策略 / Proper CORS policy set
 
-## 许可证
+## 未来扩展 / Future Enhancements
+
+- [ ] 更多工具类型 / More tool types
+- [ ] 自定义主题 / Custom themes
+- [ ] 更多语言支持 / More language support
+- [ ] 工具收藏功能 / Tool favorites
+- [ ] 用户使用统计 / User usage statistics
+- [ ] API 接口 / API endpoints
+- [ ] 移动端应用 / Mobile application
+
+## 许可证 / License
 
 MIT License
 
-## 贡献
+## 贡献 / Contributing
 
 欢迎提交 Issue 和 Pull Request 来改进这个项目！
+Welcome to submit Issues and Pull Requests to improve this project!
 
-## 技术支持
+## 技术支持 / Technical Support
 
 - Next.js: https://nextjs.org/docs
 - Supabase: https://supabase.com/docs
