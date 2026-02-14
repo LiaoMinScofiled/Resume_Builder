@@ -29,6 +29,9 @@ export interface ResumeData {
     phone: string;
     address: string;
     summary: string;
+    gender: string;
+    birthDate: string;
+    photo: string;
   };
   education: Education[];
   experience: Experience[];
