@@ -4,11 +4,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useApp } from '@/contexts/AppContext';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, BarController, LineController, PieController, DoughnutController, ScatterController, RadarController } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, RadialLinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, BarController, LineController, PieController, DoughnutController, ScatterController, RadarController } from 'chart.js';
 
 ChartJS.register(
   CategoryScale, 
   LinearScale, 
+  RadialLinearScale,
   PointElement, 
   LineElement, 
   BarElement, 
@@ -31,7 +32,7 @@ interface ChartData {
   labels: string[];
   datasets: {
     label: string;
-    data: number[];
+    data: number[] | { x: number; y: number; }[];
     backgroundColor?: string | string[];
     borderColor?: string | string[];
   }[];
@@ -121,9 +122,21 @@ export default function DataVisualizationPage() {
       const colors = colorSchemes[colorScheme];
       const color = colors[index % colors.length];
       
+      let chartData;
+      if (chartType === 'scatter') {
+        // 散点图需要特殊的数据格式：[{x, y}, {x, y}, ...]
+        chartData = data.map((row) => ({
+          x: parseFloat(row[labelColumn]) || 0,
+          y: parseFloat(row[column]) || 0
+        }));
+      } else {
+        // 其他图表类型使用常规数据格式
+        chartData = data.map((row) => parseFloat(row[column]) || 0);
+      }
+      
       return {
         label: column,
-        data: data.map((row) => row[column]),
+        data: chartData,
         backgroundColor: chartType === 'pie' || chartType === 'doughnut' 
           ? colors.map((c, i) => c)
           : color + '80',
@@ -133,7 +146,7 @@ export default function DataVisualizationPage() {
     });
 
     setChartData({
-      labels,
+      labels: chartType === 'scatter' ? [] : labels, // 散点图不需要labels
       datasets,
     });
   };
