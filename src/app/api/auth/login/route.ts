@@ -12,9 +12,10 @@ export async function POST(request: NextRequest) {
     const user = await userService.login(body);
     
     return NextResponse.json(user, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Login failed';
     return NextResponse.json(
-      { error: error.message || 'Login failed' },
+      { error: errorMessage },
       { status: 401 }
     );
   }

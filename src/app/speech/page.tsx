@@ -5,6 +5,32 @@ import Link from 'next/link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useApp } from '@/contexts/AppContext';
 
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+  error?: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionEvent) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+interface WindowWithSpeechRecognition extends Window {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+}
+
 export default function SpeechPage() {
   const { language, setLanguage } = useApp();
   const [mode, setMode] = useState<'tts' | 'stt'>('tts');
@@ -17,7 +43,7 @@ export default function SpeechPage() {
   const [rate, setRate] = useState(1);
   const [pitch, setPitch] = useState(1);
   const [recordedAudio, setRecordedAudio] = useState<string | null>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -36,33 +62,35 @@ export default function SpeechPage() {
   }, [language]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = language === 'zh' ? 'zh-CN' : 'en-US';
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognitionConstructor = (window as WindowWithSpeechRecognition).SpeechRecognition || (window as WindowWithSpeechRecognition).webkitSpeechRecognition;
+      if (SpeechRecognitionConstructor) {
+        recognitionRef.current = new SpeechRecognitionConstructor();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = language === 'zh' ? 'zh-CN' : 'en-US';
 
-      recognitionRef.current.onresult = (event: any) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
+        recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+          let finalTranscript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            }
           }
-        }
-        setTranscript(prev => prev + finalTranscript);
-      };
+          setTranscript(prev => prev + finalTranscript);
+        };
 
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
+        recognitionRef.current.onerror = (event: SpeechRecognitionEvent) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
 
-      recognitionRef.current.onend = () => {
-        if (isListening) {
-          recognitionRef.current.start();
-        }
-      };
+        recognitionRef.current.onend = () => {
+          if (isListening && recognitionRef.current) {
+            recognitionRef.current.start();
+          }
+        };
+      }
     }
 
     return () => {

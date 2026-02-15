@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useApp } from '@/contexts/AppContext';
@@ -28,6 +28,14 @@ ChartJS.register(
 type ChartType = 'bar' | 'line' | 'pie' | 'doughnut' | 'scatter' | 'radar';
 type ColorScheme = 'default' | 'warm' | 'cool' | 'pastel' | 'vibrant';
 
+const colorSchemes: Record<ColorScheme, string[]> = {
+  default: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'],
+  warm: ['#FF6B6B', '#FFA07A', '#FFD93D', '#FF8C42', '#FF6347', '#FF7F50', '#FFB6C1', '#FFA500'],
+  cool: ['#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB', '#1ABC9C'],
+  pastel: ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#E0BBE4', '#957DAD', '#D291BC'],
+  vibrant: ['#FF006E', '#8338EC', '#3A86FF', '#06FFA5', '#FFBE0B', '#FB5607', '#FF006E', '#8338EC']
+};
+
 interface ChartData {
   labels: string[];
   datasets: {
@@ -41,7 +49,7 @@ interface ChartData {
 export default function DataVisualizationPage() {
   const { language, setLanguage } = useApp();
   const [csvData, setCsvData] = useState('');
-  const [parsedData, setParsedData] = useState<any[]>([]);
+  const [parsedData, setParsedData] = useState<Record<string, string | number>[]>([]);
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('default');
@@ -55,21 +63,13 @@ export default function DataVisualizationPage() {
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const chartInstanceRef = useRef<any>(null);
+  const chartInstanceRef = useRef<ChartJS | null>(null);
 
-  const colorSchemes: Record<ColorScheme, string[]> = {
-    default: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'],
-    warm: ['#FF6B6B', '#FFA07A', '#FFD93D', '#FF8C42', '#FF6347', '#FF7F50', '#FFB6C1', '#FFA500'],
-    cool: ['#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB', '#1ABC9C'],
-    pastel: ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#E0BBE4', '#957DAD', '#D291BC'],
-    vibrant: ['#FF006E', '#8338EC', '#3A86FF', '#06FFA5', '#FFBE0B', '#FB5607', '#FF006E', '#8338EC']
-  };
-
-  const parseCSV = (csv: string) => {
+  const parseCSV = async (csv: string) => {
     try {
       if (typeof window === 'undefined') return [];
-      const Papa = require('papaparse');
-      const result = Papa.parse(csv, {
+      const Papa = await import('papaparse');
+      const result = Papa.default.parse(csv, {
         header: true,
         skipEmptyLines: true,
         dynamicTyping: true,
@@ -80,8 +80,9 @@ export default function DataVisualizationPage() {
       }
       
       return result.data;
-    } catch (e: any) {
-      throw new Error(e.message || (language === 'zh' ? 'CSV 解析失败' : 'CSV parsing failed'));
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : (language === 'zh' ? 'CSV 解析失败' : 'CSV parsing failed');
+      throw new Error(errorMessage);
     }
   };
 
@@ -98,47 +99,46 @@ export default function DataVisualizationPage() {
     }
   };
 
-  const handleParseCSV = (csv: string) => {
+  const handleParseCSV = async (csv: string) => {
     setError('');
     try {
-      const data = parseCSV(csv);
+      const data = await parseCSV(csv) as Record<string, string | number>[];
       setParsedData(data);
       generateChartData(data);
       setSuccess(language === 'zh' ? 'CSV 解析成功！' : 'CSV parsed successfully!');
-    } catch (e: any) {
-      setError(e.message || (language === 'zh' ? 'CSV 解析失败' : 'CSV parsing failed'));
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : (language === 'zh' ? 'CSV 解析失败' : 'CSV parsing failed');
+      setError(errorMessage);
     }
   };
 
-  const generateChartData = (data: any[]) => {
+  const generateChartData = useCallback((data: Record<string, string | number>[]) => {
     if (data.length === 0) return;
 
     const headers = Object.keys(data[0]);
     const labelColumn = headers[0];
     const valueColumns = headers.slice(1);
 
-    const labels = data.map((row) => row[labelColumn]);
+    const labels = data.map((row) => String(row[labelColumn]));
     const datasets = valueColumns.map((column, index) => {
       const colors = colorSchemes[colorScheme];
       const color = colors[index % colors.length];
       
-      let chartData;
+      let chartData: number[] | { x: number; y: number; }[];
       if (chartType === 'scatter') {
-        // 散点图需要特殊的数据格式：[{x, y}, {x, y}, ...]
         chartData = data.map((row) => ({
-          x: parseFloat(row[labelColumn]) || 0,
-          y: parseFloat(row[column]) || 0
+          x: parseFloat(row[labelColumn] as string) || 0,
+          y: parseFloat(row[column] as string) || 0
         }));
       } else {
-        // 其他图表类型使用常规数据格式
-        chartData = data.map((row) => parseFloat(row[column]) || 0);
+        chartData = data.map((row) => parseFloat(row[column] as string) || 0);
       }
       
       return {
         label: column,
         data: chartData,
         backgroundColor: chartType === 'pie' || chartType === 'doughnut' 
-          ? colors.map((c, i) => c)
+          ? colors.map(() => color)
           : color + '80',
         borderColor: color,
         borderWidth: 2,
@@ -146,16 +146,16 @@ export default function DataVisualizationPage() {
     });
 
     setChartData({
-      labels: chartType === 'scatter' ? [] : labels, // 散点图不需要labels
+      labels: chartType === 'scatter' ? [] as string[] : labels,
       datasets,
     });
-  };
+  }, [colorScheme, chartType]);
 
   useEffect(() => {
     if (parsedData.length > 0) {
       generateChartData(parsedData);
     }
-  }, [colorScheme, chartType]);
+  }, [colorScheme, chartType, generateChartData, parsedData]);
 
   useEffect(() => {
     if (chartRef.current && chartData) {
@@ -166,7 +166,8 @@ export default function DataVisualizationPage() {
       const ctx = chartRef.current.getContext('2d');
       if (!ctx) return;
 
-      const config: any = {
+      const hasScales = chartType !== 'pie' && chartType !== 'doughnut' && chartType !== 'radar';
+      const config = {
         type: chartType,
         data: chartData,
         options: {
@@ -189,7 +190,7 @@ export default function DataVisualizationPage() {
               enabled: true,
             },
           },
-          scales: chartType === 'pie' || chartType === 'doughnut' || chartType === 'radar' ? {} : {
+          scales: hasScales ? {
             x: {
               display: true,
               title: {
@@ -210,11 +211,11 @@ export default function DataVisualizationPage() {
                 display: showGrid,
               },
             },
-          },
+          } : undefined,
         },
       };
 
-      chartInstanceRef.current = new ChartJS(ctx, config);
+      chartInstanceRef.current = new ChartJS(ctx, config as any); // eslint-disable-line @typescript-eslint/no-explicit-any
     }
 
     return () => {
@@ -234,7 +235,7 @@ export default function DataVisualizationPage() {
       link.href = chartRef.current.toDataURL('image/png', 1.0);
       link.click();
       setSuccess(language === 'zh' ? 'PNG 导出成功！' : 'PNG exported successfully!');
-    } catch (e) {
+    } catch {
       setError(language === 'zh' ? 'PNG 导出失败' : 'PNG export failed');
     } finally {
       setIsExporting(false);
@@ -267,7 +268,7 @@ export default function DataVisualizationPage() {
       link.click();
       URL.revokeObjectURL(url);
       setSuccess(language === 'zh' ? 'SVG 导出成功！' : 'SVG exported successfully!');
-    } catch (e) {
+    } catch {
       setError(language === 'zh' ? 'SVG 导出失败' : 'SVG export failed');
     } finally {
       setIsExporting(false);

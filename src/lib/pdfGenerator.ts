@@ -10,6 +10,20 @@ export const generatePDF = async (elementId: string, fileName: string): Promise<
   cloneElement.style.width = '210mm';
   cloneElement.style.padding = '0';
   cloneElement.style.margin = '0';
+  
+  // 确保关键词高亮样式在克隆元素中正确应用
+  const style = document.createElement('style');
+  style.textContent = `
+    .keyword-highlight {
+      background-color: #ffff99 !important;
+      color: #333 !important;
+      padding: 0 2px !important;
+      border-radius: 2px !important;
+      font-weight: 500 !important;
+    }
+  `;
+  cloneElement.appendChild(style);
+  
   document.body.appendChild(cloneElement);
 
   const canvas = await html2canvas(cloneElement, {
@@ -17,6 +31,10 @@ export const generatePDF = async (elementId: string, fileName: string): Promise<
     useCORS: true,
     logging: false,
     backgroundColor: '#ffffff',
+    // 优化图片处理
+    allowTaint: true,
+    // 确保所有元素都被捕获
+    removeContainer: true,
   });
 
   // 移除克隆元素
@@ -28,6 +46,8 @@ export const generatePDF = async (elementId: string, fileName: string): Promise<
     unit: 'mm',
     format: 'a4',
     putOnlyUsedFonts: true,
+    // 优化PDF生成
+    compress: true,
   });
 
   const imgWidth = 210;
@@ -50,5 +70,5 @@ export const generatePDF = async (elementId: string, fileName: string): Promise<
   }
 
   // 保存PDF（无水印）
-  pdf.save(`${fileName}.pdf`);
+  pdf.save(fileName);
 };

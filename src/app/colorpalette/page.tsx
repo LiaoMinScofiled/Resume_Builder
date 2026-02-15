@@ -10,7 +10,6 @@ type MockupType = 'website' | 'button' | 'card' | 'input';
 
 export default function ColorPalettePage() {
   const { language, setLanguage } = useApp();
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [colors, setColors] = useState<string[]>([]);
   const [palette, setPalette] = useState<string[]>([]);
@@ -21,7 +20,6 @@ export default function ColorPalettePage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const url = URL.createObjectURL(file);
       setImageUrl(url);
       setColors([]);
@@ -31,35 +29,35 @@ export default function ColorPalettePage() {
 
   useEffect(() => {
     if (imageUrl) {
+      const extractColors = () => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = imageUrl;
+        
+        img.onload = () => {
+          const colorThief = new ColorThief();
+          try {
+            const dominantColor = colorThief.getColor(img);
+            const colorPalette = colorThief.getPalette(img, 5);
+            
+            const rgbToHex = (rgb: number[]) => {
+              return '#' + rgb.map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+              }).join('');
+            };
+            
+            setColors([rgbToHex(dominantColor)]);
+            setPalette(colorPalette.map(rgbToHex));
+          } catch (error) {
+            console.error('Error extracting colors:', error);
+          }
+        };
+      };
+      
       extractColors();
     }
   }, [imageUrl]);
-
-  const extractColors = () => {
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.src = imageUrl;
-    
-    img.onload = () => {
-      const colorThief = new ColorThief();
-      try {
-        const dominantColor = colorThief.getColor(img);
-        const colorPalette = colorThief.getPalette(img, 5);
-        
-        const rgbToHex = (rgb: number[]) => {
-          return '#' + rgb.map(x => {
-            const hex = x.toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-          }).join('');
-        };
-        
-        setColors([rgbToHex(dominantColor)]);
-        setPalette(colorPalette.map(rgbToHex));
-      } catch (error) {
-        console.error('Error extracting colors:', error);
-      }
-    };
-  };
 
   const copyToClipboard = (color: string) => {
     navigator.clipboard.writeText(color);
@@ -212,7 +210,7 @@ export default function ColorPalettePage() {
                 className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
               >
                 {imageUrl ? (
-                  <img src={imageUrl} alt="Uploaded" className="max-h-64 mx-auto rounded-lg" />
+                  <img src={imageUrl} alt="Uploaded" className="max-h-64 mx-auto rounded-lg" /> // eslint-disable-line @next/next/no-img-element
                 ) : (
                   <div>
                     <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">

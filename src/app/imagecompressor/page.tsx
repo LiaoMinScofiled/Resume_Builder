@@ -66,8 +66,7 @@ export default function ImageCompressorPage() {
           quality,
           maxWidth,
           maxHeight,
-          outputFormat,
-          removeExif
+          outputFormat
         );
 
         const compressedBlob = await fetch(compressedUrl).then((res) => res.blob());
@@ -96,8 +95,7 @@ export default function ImageCompressorPage() {
     qualityValue: number,
     maxWidthValue: number,
     maxHeightValue: number,
-    formatValue: OutputFormat,
-    removeExifValue: boolean
+    formatValue: OutputFormat
   ): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -412,6 +410,7 @@ export default function ImageCompressorPage() {
                     >
                       <div className="flex gap-4">
                         <div className="relative w-24 h-24 flex-shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={image.originalUrl}
                             alt={image.originalFile.name}

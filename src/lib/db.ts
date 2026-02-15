@@ -1,10 +1,11 @@
 import bcrypt from 'bcryptjs';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { ResumeData } from '@/types/resume';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 
-let supabase: any = null;
+let supabase: SupabaseClient | null = null;
 
 if (supabaseUrl && supabaseKey) {
   try {
@@ -111,7 +112,7 @@ export const userService = {
 };
 
 export const resumeService = {
-  async saveResume(userId: string, resumeData: any, style: string) {
+  async saveResume(userId: string, resumeData: ResumeData, style: string) {
     if (!supabase) {
       throw new Error('Database not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
     }

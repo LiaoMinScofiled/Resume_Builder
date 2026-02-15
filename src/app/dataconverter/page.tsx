@@ -5,7 +5,7 @@ import Link from 'next/link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useApp } from '@/contexts/AppContext';
 
-type FormatType = 'json' | 'yaml' | 'csv';
+type FormatType = 'json' | 'yaml' | 'xml' | 'csv';
 type TabType = 'convert' | 'validate' | 'example' | 'diff';
 
 export default function DataConverterPage() {
@@ -28,26 +28,26 @@ export default function DataConverterPage() {
   const parseJSON = (data: string) => {
     try {
       return JSON.parse(data);
-    } catch (e) {
+    } catch {
       throw new Error(language === 'zh' ? 'JSON 格式错误' : 'Invalid JSON format');
     }
   };
 
-  const parseYAML = (data: string) => {
+  const parseYAML = async (data: string) => {
     try {
       if (typeof window === 'undefined') return null;
-      const yaml = require('js-yaml');
-      return yaml.load(data);
-    } catch (e) {
+      const yaml = await import('js-yaml');
+      return yaml.default.load(data);
+    } catch {
       throw new Error(language === 'zh' ? 'YAML 格式错误' : 'Invalid YAML format');
     }
   };
 
-  const parseCSV = (data: string) => {
+  const parseCSV = async (data: string) => {
     try {
       if (typeof window === 'undefined') return null;
-      const Papa = require('papaparse');
-      const result = Papa.parse(data, {
+      const Papa = await import('papaparse');
+      const result = Papa.default.parse(data, {
         header: true,
         skipEmptyLines: true,
       });
@@ -55,53 +55,53 @@ export default function DataConverterPage() {
         throw new Error(result.errors[0].message);
       }
       return result.data;
-    } catch (e) {
+    } catch {
       throw new Error(language === 'zh' ? 'CSV 格式错误' : 'Invalid CSV format');
     }
   };
 
-  const toJSON = (data: any) => {
+  const toJSON = (data: unknown) => {
     return JSON.stringify(data, null, 2);
   };
 
-  const toYAML = (data: any) => {
+  const toYAML = async (data: unknown) => {
     try {
       if (typeof window === 'undefined') return '';
-      const yaml = require('js-yaml');
-      return yaml.dump(data, { indent: 2, lineWidth: -1 });
-    } catch (e) {
+      const yaml = await import('js-yaml');
+      return yaml.default.dump(data, { indent: 2, lineWidth: -1 });
+    } catch {
       throw new Error(language === 'zh' ? '转换为 YAML 失败' : 'Failed to convert to YAML');
     }
   };
 
-  const toCSV = (data: any) => {
+  const toCSV = async (data: unknown) => {
     try {
       if (typeof window === 'undefined') return '';
-      const Papa = require('papaparse');
-      const result = Papa.unparse(data, { quotes: true });
+      const Papa = await import('papaparse');
+      const result = Papa.default.unparse(data, { quotes: true });
       return result;
-    } catch (e) {
+    } catch {
       throw new Error(language === 'zh' ? '转换为 CSV 失败' : 'Failed to convert to CSV');
     }
   };
 
-  const handleConvert = () => {
+  const handleConvert = async () => {
     setError('');
     setSuccess('');
     setOutputData('');
 
     try {
-      let parsedData: any;
+      let parsedData: unknown;
 
       switch (inputFormat) {
         case 'json':
           parsedData = parseJSON(inputData);
           break;
         case 'yaml':
-          parsedData = parseYAML(inputData);
+          parsedData = await parseYAML(inputData);
           break;
         case 'csv':
-          parsedData = parseCSV(inputData);
+          parsedData = await parseCSV(inputData);
           break;
       }
 
@@ -111,44 +111,46 @@ export default function DataConverterPage() {
           result = toJSON(parsedData);
           break;
         case 'yaml':
-          result = toYAML(parsedData);
+          result = await toYAML(parsedData);
           break;
         case 'csv':
-          result = toCSV(parsedData);
+          result = await toCSV(parsedData);
           break;
       }
 
       setOutputData(result);
       setSuccess(language === 'zh' ? '转换成功！' : 'Conversion successful!');
-    } catch (e: any) {
-      setError(e.message || (language === 'zh' ? '转换失败' : 'Conversion failed'));
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : (language === 'zh' ? '转换失败' : 'Conversion failed');
+      setError(errorMessage);
     }
   };
 
-  const handleValidate = () => {
+  const handleValidate = async () => {
     setError('');
     setSuccess('');
     setValidationResult('');
 
     try {
-      let parsedData: any;
+      let parsedData: unknown;
 
       switch (inputFormat) {
         case 'json':
           parsedData = parseJSON(inputData);
           break;
         case 'yaml':
-          parsedData = parseYAML(inputData);
+          parsedData = await parseYAML(inputData);
           break;
         case 'csv':
-          parsedData = parseCSV(inputData);
+          parsedData = await parseCSV(inputData);
           break;
       }
 
       if (schema.trim()) {
         const schemaObj = parseJSON(schema);
-        const ajv = require('ajv');
-        const validate = new ajv().compile(schemaObj);
+        const Ajv = await import('ajv');
+        const ajvInstance = new Ajv.default();
+        const validate = ajvInstance.compile(schemaObj);
         const valid = validate(parsedData);
 
         if (!valid) {
@@ -167,12 +169,13 @@ export default function DataConverterPage() {
           : '✓ Validation passed! Data format is correct.'
       );
       setSuccess(language === 'zh' ? '校验成功！' : 'Validation successful!');
-    } catch (e: any) {
-      setError(e.message || (language === 'zh' ? '校验失败' : 'Validation failed'));
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : (language === 'zh' ? '校验失败' : 'Validation failed');
+      setError(errorMessage);
     }
   };
 
-  const handleGenerateExample = () => {
+  const handleGenerateExample = async () => {
     setError('');
     setSuccess('');
 
@@ -196,21 +199,22 @@ export default function DataConverterPage() {
           result = toJSON(exampleData);
           break;
         case 'yaml':
-          result = toYAML(exampleData);
+          result = await toYAML(exampleData);
           break;
         case 'csv':
-          result = toCSV([exampleData]);
+          result = await toCSV([exampleData]);
           break;
       }
 
       setInputData(result);
       setSuccess(language === 'zh' ? '示例生成成功！' : 'Example generated successfully!');
-    } catch (e: any) {
-      setError(e.message || (language === 'zh' ? '生成示例失败' : 'Failed to generate example'));
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : (language === 'zh' ? '生成示例失败' : 'Failed to generate example');
+      setError(errorMessage);
     }
   };
 
-  const handleDiff = () => {
+  const handleDiff = async () => {
     setError('');
     setSuccess('');
     setDiffResult('');
@@ -219,7 +223,8 @@ export default function DataConverterPage() {
       const data1 = parseJSON(diffData1);
       const data2 = parseJSON(diffData2);
 
-      const diff = require('diff').diffJson(data1, data2);
+      const diffModule = await import('diff');
+      const diff = diffModule.diffJson(data1, data2);
 
       if (diff.length === 0) {
         setDiffResult(
@@ -232,7 +237,7 @@ export default function DataConverterPage() {
       }
 
       let result = '';
-      diff.forEach((part: any) => {
+      diff.forEach((part: { added?: boolean; removed?: boolean; value: unknown }) => {
         const color = part.added ? 'green' : part.removed ? 'red' : 'grey';
         const prefix = part.added ? '+' : part.removed ? '-' : ' ';
         const value = JSON.stringify(part.value, null, 2);
@@ -241,8 +246,9 @@ export default function DataConverterPage() {
 
       setDiffResult(result);
       setSuccess(language === 'zh' ? '比较完成！' : 'Comparison completed!');
-    } catch (e: any) {
-      setError(e.message || (language === 'zh' ? '比较失败' : 'Comparison failed'));
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : (language === 'zh' ? '比较失败' : 'Comparison failed');
+      setError(errorMessage);
     }
   };
 

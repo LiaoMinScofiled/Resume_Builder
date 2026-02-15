@@ -278,3 +278,12 @@ body {
 .animate-modalIn {
   animation: modalIn 0.3s ease-out;
 }
+
+/* 关键词高亮样式 */
+.keyword-highlight {
+  background-color: #ffff99;
+  color: #333;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 500;
+}

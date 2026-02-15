@@ -343,7 +343,7 @@ export default function CalculatorPage() {
         ].map((base) => (
           <button
             key={base.key}
-            onClick={() => handleProgrammerBaseChange(base.key as any)}
+            onClick={() => handleProgrammerBaseChange(base.key as 'dec' | 'hex' | 'oct' | 'bin')}
             className={`px-4 py-2 rounded-lg font-semibold transition-all ${
               programmerBase === base.key
                 ? 'bg-blue-500 text-white'

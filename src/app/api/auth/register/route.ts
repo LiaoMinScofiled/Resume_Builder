@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
     const user = await userService.createUser(body);
     
     return NextResponse.json(user, { status: 201 });
-  } catch (error: any) {
-    let errorMessage = error.message || 'Registration failed';
+  } catch (error: unknown) {
+    let errorMessage = error instanceof Error ? error.message : 'Registration failed';
     if (errorMessage === 'Email already exists') {
       errorMessage = '该邮箱已被注册';
     }

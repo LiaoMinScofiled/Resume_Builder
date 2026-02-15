@@ -43,9 +43,10 @@ export async function GET(request: NextRequest) {
     const resume = await resumeService.getResumeByUserId(userId);
     
     return NextResponse.json(resume, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to load resume';
     return NextResponse.json(
-      { error: error.message || 'Failed to load resume' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

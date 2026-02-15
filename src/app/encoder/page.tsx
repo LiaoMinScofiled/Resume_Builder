@@ -18,7 +18,7 @@ export default function EncoderPage() {
     try {
       const encoded = encodeURIComponent(urlInput);
       setUrlOutput(encoded);
-    } catch (error) {
+    } catch {
       setUrlOutput(language === 'zh' ? '编码失败' : 'Encoding failed');
     }
   };
@@ -27,7 +27,7 @@ export default function EncoderPage() {
     try {
       const decoded = decodeURIComponent(urlInput);
       setUrlOutput(decoded);
-    } catch (error) {
+    } catch {
       setUrlOutput(language === 'zh' ? '解码失败' : 'Decoding failed');
     }
   };
@@ -49,7 +49,7 @@ export default function EncoderPage() {
     try {
       const encoded = btoa(base64Input);
       setBase64Output(encoded);
-    } catch (error) {
+    } catch {
       setBase64Output(language === 'zh' ? '编码失败' : 'Encoding failed');
     }
   };
@@ -58,7 +58,7 @@ export default function EncoderPage() {
     try {
       const decoded = atob(base64Input);
       setBase64Output(decoded);
-    } catch (error) {
+    } catch {
       setBase64Output(language === 'zh' ? '解码失败' : 'Decoding failed');
     }
   };

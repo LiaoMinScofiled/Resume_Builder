@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resumeService } from '@/lib/db';
+import { ResumeData } from '@/types/resume';
 
 interface SaveResumeRequest {
   userId: string;
-  resumeData: any;
+  resumeData: ResumeData;
   style: string;
 }
 
@@ -27,11 +28,12 @@ export async function POST(request: NextRequest) {
     });
     
     return NextResponse.json(result, { status: 200 });
-  } catch (error: any) {
-    console.error('Save error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to save resume';
+    console.error('Save error:', errorMessage);
     
     return NextResponse.json(
-      { error: error.message || 'Failed to save resume' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -245,6 +245,7 @@ export default function QRCodeGenerator() {
                 <div className="flex flex-col items-center justify-center">
                   {qrCode ? (
                     <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={qrCode}
                         alt="QR Code"
@@ -309,6 +310,7 @@ export default function QRCodeGenerator() {
                 <div className="space-y-4">
                   {uploadedImage && (
                     <div className="flex justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={uploadedImage}
                         alt="Uploaded QR Code"

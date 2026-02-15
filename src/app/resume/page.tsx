@@ -3,13 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ResumeData, ResumeStyle } from '@/types/resume';
-import { generatePDF } from '@/lib/pdfGenerator';
+
 import ResumeForm from '@/components/ResumeForm';
 import ResumePreview from '@/components/ResumePreview';
-import StyleSelector from '@/components/StyleSelector';
 import { useApp } from '@/contexts/AppContext';
-
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 const initialResumeData: ResumeData = {
   personalInfo: {
@@ -21,19 +18,36 @@ const initialResumeData: ResumeData = {
     gender: '',
     birthDate: '',
     photo: '',
+    location: '',
+    age: '',
+    title: '',
+    status: '',
+    salary: '',
   },
   education: [],
   experience: [],
   skills: [],
+  projects: [],
+  awards: [],
+  otherInfo: {},
 };
 
 export default function ResumeBuilder() {
   const { language, user } = useApp();
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
-  const [resumeStyle, setResumeStyle] = useState<ResumeStyle>('style-1');
+  const [resumeStyle] = useState<ResumeStyle>('style-1');
+  // 字体状态
+  const [fontFamily, setFontFamily] = useState<string>('微软雅黑');
+  // 字体大小状态
+  const [fontSize, setFontSize] = useState<number>(12);
+  // 字体灰度状态 (字重)
+  const [fontWeight, setFontWeight] = useState<number>(400);
+  // 下拉菜单状态
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  // 预览简历弹窗状态
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
   const handleResumeDataChange = (data: ResumeData) => {
     setResumeData(data);
@@ -46,43 +60,8 @@ export default function ResumeBuilder() {
     }
   };
 
-  const handleStyleChange = (style: ResumeStyle) => {
-    setResumeStyle(style);
-  };
-
-  const handleDownloadPDFInline = async () => {
-    if (!user) {
-      alert(language === 'zh' ? '请先登录' : 'Please login first');
-      return;
-    }
-    await generatePDF('resume-preview-inline', `${resumeData.personalInfo.name || 'resume'}.pdf`);
-  };
-
   const handleSaveResume = async () => {
     if (!user) return;
-
-    setSaveStatus('saving');
-    try {
-      const response = await fetch('/api/resume/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          resumeData,
-        }),
-      });
-
-      if (response.ok) {
-        setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2000);
-      } else {
-        setSaveStatus('error');
-        setTimeout(() => setSaveStatus('idle'), 2000);
-      }
-    } catch (error) {
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-    }
   };
 
   useEffect(() => {
@@ -108,6 +87,34 @@ export default function ResumeBuilder() {
     }
   }, [user]);
 
+  // 模块导航状态
+  const [activeModule, setActiveModule] = useState<string>('basic');
+
+  // 处理模块点击事件
+  const handleModuleClick = (module: string) => {
+    setActiveModule(module);
+  };
+  // 技能布局状态
+  const [skillLayout, setSkillLayout] = useState<'single' | 'double' | 'triple'>('double');
+  // 技能样式状态
+  const [skillStyle, setSkillStyle] = useState<string>('default');
+  // 荣誉墙布局状态
+  const [awardLayout, setAwardLayout] = useState<string>('title-tile-bg');
+  
+  const handleSkillLayoutChange = (layout: 'single' | 'double' | 'triple') => {
+    setSkillLayout(layout);
+  };
+  
+  const handleSkillStyleChange = (style: string) => {
+    setSkillStyle(style);
+  };
+  
+  const handleAwardLayoutChange = (layout: string) => {
+    setAwardLayout(layout);
+  };
+  
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <header className="bg-white/80 backdrop-blur-lg border-b border-gray-100 sticky top-0 z-50">
@@ -121,11 +128,34 @@ export default function ResumeBuilder() {
                 {language === 'zh' ? '在线工具箱' : 'Online Tools'}
               </span>
             </Link>
+            
+            <div className="flex items-center gap-4">
+              {/* 简历预览功能控件 */}
+              <button 
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                onClick={() => setShowPreviewModal(true)}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {language === 'zh' ? '预览简历' : 'Preview Resume'}
+              </button>
+              
+              {/* PDF下载控件 */}
+              <button 
+                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {language === 'zh' ? '下载PDF' : 'Download PDF'}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoadingResume ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
@@ -135,74 +165,272 @@ export default function ResumeBuilder() {
               </p>
             </div>
           </div>
-        ) : user ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+            {/* 左边栏：信息填写模块 */}
             <div>
-              <ResumeForm
-                resumeData={resumeData}
-                onResumeDataChange={handleResumeDataChange}
-                language={language}
-              />
-            </div>
-            <div className="space-y-6">
-              <StyleSelector
-                style={resumeStyle}
-                onStyleChange={handleStyleChange}
-                language={language}
-              />
+              {/* 模块导航 */}
+              <div className="flex flex-wrap gap-2 mb-6 bg-white p-3 rounded-lg shadow-sm">
+                <button
+                  onClick={() => setActiveModule('basic')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'basic' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {language === 'zh' ? '基本信息' : 'Basic Info'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('education')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'education' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  {language === 'zh' ? '教育经历' : 'Education'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('experience')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'experience' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  {language === 'zh' ? '工作经历' : 'Experience'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('projects')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'projects' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  {language === 'zh' ? '项目经历' : 'Projects'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('summary')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'summary' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {language === 'zh' ? '个人总结' : 'Summary'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('skills')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'skills' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  {language === 'zh' ? '技能专长' : 'Skills'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('awards')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'awards' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  {language === 'zh' ? '荣誉奖项' : 'Awards'}
+                </button>
+                <button
+                  onClick={() => setActiveModule('other')}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeModule === 'other' ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  {language === 'zh' ? '其他信息' : 'Other Info'}
+                </button>
+              </div>
               
-              <div className="card card-hover">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-gray-800">
-                    {language === 'zh' ? '简历预览' : 'Resume Preview'}
-                  </h2>
-                  <button
-                    onClick={handleDownloadPDFInline}
-                    className="btn btn-primary"
-                  >
-                    {language === 'zh' ? '下载PDF' : 'Download PDF'}
-                  </button>
+              {/* 信息填写表单 */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <ResumeForm
+                  resumeData={resumeData}
+                  onResumeDataChange={handleResumeDataChange}
+                  language={language}
+                  activeModule={activeModule}
+                  onSkillLayoutChange={handleSkillLayoutChange}
+                  onSkillStyleChange={handleSkillStyleChange}
+                  onAwardLayoutChange={handleAwardLayoutChange}
+                  onFontFamilyChange={setFontFamily}
+                />
+              </div>
+            </div>
+            
+            {/* 右边栏：简历预览和样式选择 */}
+            <div>
+              {/* 样式选择控件 */}
+              <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-4">
+                    {/* 字体选择 */}
+                    <div className="relative">
+                      <button 
+                        className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+                        onClick={() => setOpenDropdown(openDropdown === 'font' ? null : 'font')}
+                      >
+                        {fontFamily} ▼
+                      </button>
+                      {openDropdown === 'font' && (
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                          <div className="py-1">
+                            {['微软雅黑', '宋体', '黑体', '楷体', '仿宋', '霞鹜文楷', '思源黑体', '仓耳渔阳体'].map((font) => (
+                              <button
+                                key={font}
+                                className={`block w-full text-left px-4 py-2 text-sm ${fontFamily === font ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                onClick={() => {
+                                  setFontFamily(font);
+                                  setOpenDropdown(null);
+                                }}
+                              >
+                                {font}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* 字体大小选择 */}
+                    <div className="relative">
+                      <button 
+                        className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+                        onClick={() => setOpenDropdown(openDropdown === 'size' ? null : 'size')}
+                      >
+                        {fontSize} ▼
+                      </button>
+                      {openDropdown === 'size' && (
+                        <div className="absolute top-full left-0 mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                          <div className="py-1">
+                            {[10, 11, 12, 13, 14, 15, 16, 18].map((size) => (
+                              <button
+                                key={size}
+                                className={`block w-full text-left px-4 py-2 text-sm ${fontSize === size ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                onClick={() => {
+                                  setFontSize(size);
+                                  setOpenDropdown(null);
+                                }}
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* 字体灰度选择 */}
+                    <div className="relative">
+                      <button 
+                        className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+                        onClick={() => setOpenDropdown(openDropdown === 'weight' ? null : 'weight')}
+                      >
+                        A ▼
+                      </button>
+                      {openDropdown === 'weight' && (
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                          <div className="p-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">{language === 'zh' ? '字体灰度' : 'Font Weight'}</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {[300, 400, 500, 600, 700].map((weight) => (
+                                <button
+                                  key={weight}
+                                  className={`px-3 py-1 rounded-md ${fontWeight === weight ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-100'}`}
+                                  onClick={() => {
+                                    setFontWeight(weight);
+                                    setOpenDropdown(null);
+                                  }}
+                                >
+                                  <span style={{ fontWeight: weight }}>A</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                      </svg>
+                      {language === 'zh' ? '调整样式' : 'Adjust Style'}
+                    </button>
+                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                      </svg>
+                      {language === 'zh' ? '模板设置' : 'Template Settings'}
+                    </button>
+                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                      {language === 'zh' ? '背景设置' : 'Background Settings'}
+                    </button>
+                  </div>
                 </div>
-                <div id="resume-preview-inline" className="bg-white p-4 rounded-lg shadow-inner border border-gray-100 overflow-auto max-h-[600px]">
+              </div>
+              
+              {/* 简历预览 */}
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                  {language === 'zh' ? '简历预览' : 'Resume Preview'}
+                </h2>
+                <div id="resume-preview-inline" className="bg-white p-4 rounded-lg border border-gray-100 overflow-auto max-h-[800px]">
                   <ResumePreview
                     resumeData={resumeData}
                     style={resumeStyle}
                     language={language}
+                    skillLayout={skillLayout}
+                    skillStyle={skillStyle}
+                    awardLayout={awardLayout}
+                    fontFamily={fontFamily}
+                    fontSize={fontSize}
+                    fontWeight={fontWeight}
+                    onModuleClick={handleModuleClick}
                   />
                 </div>
               </div>
             </div>
           </div>
-        ) : (
-          <div className="flex justify-center items-center min-h-[500px]">
-            <div className="w-full max-w-md">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
+        )}
+        
+        {/* 预览简历弹窗 */}
+        {showPreviewModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-auto">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-gray-900">{language === 'zh' ? '预览简历' : 'Preview Resume'}</h3>
+                  <button 
+                    className="text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPreviewModal(false)}
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {language === 'zh' ? '简历生成器' : 'Resume Builder'}
-                </h1>
-                <p className="text-gray-600">
-                  {language === 'zh' ? '创建专业美观的简历' : 'Create professional and beautiful resumes'}
-                </p>
               </div>
-              <div className="card">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">
-                  {language === 'zh' ? '请先登录' : 'Please Login First'}
-                </h2>
-                <p className="text-gray-600 mb-4">
-                  {language === 'zh' ? '登录后即可使用简历生成器功能' : 'Login to use the resume builder'}
-                </p>
-                <Link
-                  href="/"
-                  className="btn btn-primary w-full text-center"
-                >
-                  {language === 'zh' ? '返回首页登录' : 'Back to Home to Login'}
-                </Link>
+              <div className="p-8">
+                <div className="max-w-4xl mx-auto">
+                  <ResumePreview
+                    resumeData={resumeData}
+                    style={resumeStyle}
+                    language={language}
+                    skillLayout={skillLayout}
+                    skillStyle={skillStyle}
+                    awardLayout={awardLayout}
+                    fontFamily={fontFamily}
+                    fontSize={fontSize}
+                    fontWeight={fontWeight}
+                  />
+                </div>
               </div>
+
             </div>
           </div>
         )}

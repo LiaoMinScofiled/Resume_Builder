@@ -11,7 +11,6 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin, language }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -65,8 +64,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, language }) => {
       }
 
       onLogin(user);
-    } catch (err: any) {
-      setError(err.message || (language === 'zh' ? '操作失败' : 'Operation failed'));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : (language === 'zh' ? '操作失败' : 'Operation failed');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

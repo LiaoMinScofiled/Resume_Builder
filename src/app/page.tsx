@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import ToolCard from '@/components/ToolCard';
 import LoginForm from '@/components/LoginForm';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
