@@ -109,6 +109,33 @@ Ancient, game, English, couple and other styles, personalized nickname generatio
 - 一键复制结果
 - 每次生成多个选项
 
+### 9. 配色方案生成器 / Color Palette Generator
+提取图片配色、生成调色板、配色可视化预览。
+
+Extract colors from images, generate palettes, visualize color schemes.
+
+**功能特性 / Features:**
+- 图片上传和颜色提取
+- 主色调自动识别
+- 5色调色板生成
+- 4种可视化预览（网站、按钮、卡片、输入框）
+- 一键复制颜色代码
+- 智能对比度计算
+
+### 10. 图片压缩与格式转换器 / Image Compressor & Format Converter
+批量压缩图片、调整尺寸、转换格式、去除EXIF信息。
+
+Batch compress images, resize, convert formats, remove EXIF data.
+
+**功能特性 / Features:**
+- 批量上传和处理图片
+- 质量滑块控制压缩程度
+- 自定义最大宽高限制
+- 多种输出格式（WebP、AVIF、JPEG、PNG）
+- 自动去除EXIF信息
+- 实时显示压缩比和文件大小
+- 单个或批量下载
+
 ## 技术栈 / Tech Stack
 
 ### 前端 / Frontend
@@ -120,6 +147,7 @@ Ancient, game, English, couple and other styles, personalized nickname generatio
 - **qrcode**：二维码生成
 - **jsQR**：二维码解析
 - **opencc-js**：繁简转换
+- **colorthief**：颜色提取
 - **Web Speech API**：语音识别和合成
 
 ### 后端 / Backend
@@ -214,8 +242,10 @@ Recommended to deploy using Vercel (official Next.js deployment platform):
 │   │   │   ├── auth/        # 认证相关 API / Auth APIs
 │   │   │   └── detect-language/  # IP 检测 API / IP Detection API
 │   │   ├── calculator/      # 计算器页面 / Calculator Page
+│   │   ├── colorpalette/    # 配色方案生成器页面 / Color Palette Generator Page
 │   │   ├── convert/         # 繁简转换页面 / Converter Page
 │   │   ├── encoder/         # 编码/解码页面 / Encoder/Decoder Page
+│   │   ├── imagecompressor/ # 图片压缩器页面 / Image Compressor Page
 │   │   ├── nickname/        # 网名/ID生成器页面 / Nickname/ID Generator Page
 │   │   ├── password/        # 密码工具页面 / Password Tools Page
 │   │   ├── qrcode/          # 二维码页面 / QR Code Page

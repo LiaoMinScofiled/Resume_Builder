@@ -8,7 +8,7 @@ import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 
 export default function QRCodeGenerator() {
-  const { language, setLanguage, user } = useApp();
+  const { language, setLanguage } = useApp();
   const [mode, setMode] = useState<'generate' | 'scan'>('generate');
   const [text, setText] = useState('');
   const [size, setSize] = useState(256);
@@ -49,11 +49,6 @@ export default function QRCodeGenerator() {
 
   const downloadQRCode = () => {
     if (!qrCode) return;
-
-    if (!user) {
-      alert(language === 'zh' ? '请先登录后下载' : 'Please login first to download');
-      return;
-    }
 
     const link = document.createElement('a');
     link.download = 'qrcode.png';
@@ -162,57 +157,73 @@ export default function QRCodeGenerator() {
             <div className="space-y-6">
               <div className="card">
                 <h2 className="text-xl font-bold text-gray-800 mb-6">
-                  {language === 'zh' ? '输入内容' : 'Input Content'}
+                  {language === 'zh' ? '二维码设置' : 'QR Code Settings'}
                 </h2>
                 <div className="space-y-4">
-                  <div className="form-group">
-                    <label className="form-label">{language === 'zh' ? '文本或链接' : 'Text or Link'}</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {language === 'zh' ? '内容' : 'Content'}
+                    </label>
                     <textarea
-                      className="form-textarea"
                       value={text}
                       onChange={(e) => setText(e.target.value)}
-                      placeholder={language === 'zh' ? '请输入要生成二维码的文本或链接...' : 'Enter text or link to generate QR code...'}
+                      placeholder={language === 'zh' ? '输入文本或网址' : 'Enter text or URL'}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                       rows={4}
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="form-group">
-                      <label className="form-label">{language === 'zh' ? '尺寸' : 'Size'}: {size}px</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {language === 'zh' ? `尺寸: ${size}px` : `Size: ${size}px`}
+                    </label>
+                    <input
+                      type="range"
+                      min="128"
+                      max="512"
+                      value={size}
+                      onChange={(e) => setSize(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {language === 'zh' ? '前景色' : 'Foreground Color'}
+                    </label>
+                    <div className="flex items-center space-x-2">
                       <input
-                        type="range"
-                        min="128"
-                        max="512"
-                        step="32"
-                        value={size}
-                        onChange={(e) => setSize(parseInt(e.target.value))}
-                        className="w-full"
+                        type="color"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        className="w-12 h-12 rounded border border-gray-300"
                       />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">{language === 'zh' ? '二维码颜色' : 'QR Code Color'}</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={color}
-                          onChange={(e) => setColor(e.target.value)}
-                          className="w-12 h-12 rounded cursor-pointer"
-                        />
-                        <span className="text-sm text-gray-600">{color}</span>
-                      </div>
+                      <input
+                        type="text"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">{language === 'zh' ? '背景颜色' : 'Background Color'}</label>
-                    <div className="flex items-center gap-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {language === 'zh' ? '背景色' : 'Background Color'}
+                    </label>
+                    <div className="flex items-center space-x-2">
                       <input
                         type="color"
                         value={bgColor}
                         onChange={(e) => setBgColor(e.target.value)}
-                        className="w-12 h-12 rounded cursor-pointer"
+                        className="w-12 h-12 rounded border border-gray-300"
                       />
-                      <span className="text-sm text-gray-600">{bgColor}</span>
+                      <input
+                        type="text"
+                        value={bgColor}
+                        onChange={(e) => setBgColor(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
                     </div>
                   </div>
 
@@ -229,9 +240,9 @@ export default function QRCodeGenerator() {
             <div className="space-y-6">
               <div className="card">
                 <h2 className="text-xl font-bold text-gray-800 mb-6">
-                  {language === 'zh' ? '预览' : 'Preview'}
+                  {language === 'zh' ? '二维码预览' : 'QR Code Preview'}
                 </h2>
-                <div className="flex flex-col items-center space-y-4">
+                <div className="flex flex-col items-center justify-center">
                   {qrCode ? (
                     <>
                       <img
@@ -245,11 +256,6 @@ export default function QRCodeGenerator() {
                       >
                         {language === 'zh' ? '下载二维码' : 'Download QR Code'}
                       </button>
-                      {!user && (
-                        <p className="text-sm text-gray-500">
-                          {language === 'zh' ? '需要登录后才能下载' : 'Login required to download'}
-                        </p>
-                      )}
                     </>
                   ) : (
                     <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
@@ -291,15 +297,6 @@ export default function QRCodeGenerator() {
                     onChange={handleFileUpload}
                     className="hidden"
                   />
-                  {uploadedImage && (
-                    <div className="mt-4">
-                      <img
-                        src={uploadedImage}
-                        alt="Uploaded QR Code"
-                        className="w-full max-w-md mx-auto border-2 border-gray-200 rounded-lg"
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -310,24 +307,39 @@ export default function QRCodeGenerator() {
                   {language === 'zh' ? '解析结果' : 'Scan Result'}
                 </h2>
                 <div className="space-y-4">
+                  {uploadedImage && (
+                    <div className="flex justify-center">
+                      <img
+                        src={uploadedImage}
+                        alt="Uploaded QR Code"
+                        className="max-w-full h-auto border-2 border-gray-200 rounded-lg"
+                      />
+                    </div>
+                  )}
                   {scanResult ? (
-                    <>
-                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <pre className="whitespace-pre-wrap break-words text-gray-800 font-sans">
-                          {scanResult}
-                        </pre>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {language === 'zh' ? '识别内容' : 'Recognized Content'}
+                        </label>
+                        <textarea
+                          value={scanResult}
+                          readOnly
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          rows={4}
+                        />
                       </div>
                       <button
                         onClick={copyScanResult}
                         className="btn btn-secondary w-full"
                       >
-                        {language === 'zh' ? '复制结果' : 'Copy Result'}
+                        {language === 'zh' ? '复制内容' : 'Copy Content'}
                       </button>
-                    </>
+                    </div>
                   ) : (
                     <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                       <p className="text-gray-500">
-                        {language === 'zh' ? '上传二维码图片后显示解析结果' : 'Upload QR code image to see scan result'}
+                        {language === 'zh' ? '上传二维码图片后显示结果' : 'Results will appear after uploading QR code'}
                       </p>
                     </div>
                   )}
@@ -337,8 +349,6 @@ export default function QRCodeGenerator() {
           </div>
         )}
       </main>
-
-      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 }

@@ -169,6 +169,66 @@ export default function Home() {
             href="/nickname"
             color="border-rose-500"
           />
+
+          <ToolCard
+            title={language === 'zh' ? '配色方案生成器' : 'Color Palette Generator'}
+            description={language === 'zh' ? '提取图片配色、生成调色板、配色可视化预览' : 'Extract colors from images, generate palettes, visualize color schemes'}
+            icon={
+              <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+              </svg>
+            }
+            href="/colorpalette"
+            color="border-pink-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '图片压缩器' : 'Image Compressor'}
+            description={language === 'zh' ? '批量压缩图片、调整尺寸、转换格式、去除EXIF' : 'Batch compress images, resize, convert formats, remove EXIF'}
+            icon={
+              <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            }
+            href="/imagecompressor"
+            color="border-teal-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '文件加密工具' : 'File Encryption Tool'}
+            description={language === 'zh' ? '加密文件或文件夹，保护隐私安全，本地加密解密' : 'Encrypt files or folders to protect privacy, local encryption and decryption'}
+            icon={
+              <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            }
+            href="/encrypt"
+            color="border-orange-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '数据转换与校验' : 'Data Converter & Validator'}
+            description={language === 'zh' ? 'JSON/YAML/CSV 格式互转、Schema 校验、示例生成、Diff 比较' : 'JSON/YAML/CSV format conversion, Schema validation, example generation, Diff comparison'}
+            icon={
+              <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+            }
+            href="/dataconverter"
+            color="border-indigo-500"
+          />
+
+          <ToolCard
+            title={language === 'zh' ? '数据可视化生成器' : 'Data Visualization Generator'}
+            description={language === 'zh' ? '上传 CSV 数据，生成精美图表，导出 PNG/SVG' : 'Upload CSV data, generate beautiful charts, export PNG/SVG'}
+            icon={
+              <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            }
+            href="/dataviz"
+            color="border-cyan-500"
+          />
         </div>
 
         <div className="text-center mt-16">
