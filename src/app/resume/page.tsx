@@ -49,6 +49,14 @@ export default function ResumeBuilder() {
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
+  // 测试环境变量
+  useEffect(() => {
+    console.log('=== 环境变量测试 ===');
+    console.log('NEXT_PUBLIC_DASHSCOPE_API_KEY:', process.env.NEXT_PUBLIC_DASHSCOPE_API_KEY);
+    console.log('API Key configured:', !!process.env.NEXT_PUBLIC_DASHSCOPE_API_KEY);
+    console.log('API Key length:', process.env.NEXT_PUBLIC_DASHSCOPE_API_KEY ? process.env.NEXT_PUBLIC_DASHSCOPE_API_KEY.length : 0);
+  }, []);
+
   const handleResumeDataChange = (data: ResumeData) => {
     setResumeData(data);
     if (user) {

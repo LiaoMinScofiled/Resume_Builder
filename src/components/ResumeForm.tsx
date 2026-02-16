@@ -754,11 +754,60 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           </svg>
                         </button>
                       </div>
+                      {/* 润色按钮 */}
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
+                          onClick={async () => {
+                            const descriptionElement = document.querySelector(`[data-edu-id="${edu.id}"]`);
+                            if (descriptionElement) {
+                              const originalContent = descriptionElement.innerHTML;
+                              
+                              if (!originalContent || originalContent.trim() === '<p><br></p>' || originalContent.trim() === '') {
+                                alert(language === 'zh' ? '请先输入教育经历描述内容' : 'Please enter education description first');
+                                return;
+                              }
+                              
+                              try {
+                                console.log('开始润色操作');
+                                console.log('Original content:', originalContent);
+                                console.log('Extracted text:', originalContent.replace(/<[^>]*>/g, ''));
+                                
+                                // 导入DashScope API
+                                console.log('Importing dashscope module...');
+                                const { callDashScopeAPI } = await import('@/lib/dashscope');
+                                console.log('Import successful');
+                                
+                                // 调用API进行润色
+                                const prompt = `请对以下教育经历描述进行润色，使其更加专业、简洁、有吸引力：\n\n${originalContent.replace(/<[^>]*>/g, '')}`;
+                                console.log('Prompt:', prompt);
+                                
+                                console.log('Calling API...');
+                                const polishedContent = await callDashScopeAPI(prompt);
+                                console.log('API call successful');
+                                console.log('Polished content:', polishedContent);
+                                
+                                // 更新内容
+                                descriptionElement.innerHTML = `<p>${polishedContent}</p>`;
+                                updateEducation(edu.id, 'description', `<p>${polishedContent}</p>`);
+                                console.log('Content updated successfully');
+                              } catch (error) {
+                                console.error('润色失败:', error);
+                                console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+                                alert(language === 'zh' ? '润色失败，请检查API配置' : 'Polishing failed, please check API configuration');
+                              }
+                            }
+                          }}
+                        >
+                          {language === 'zh' ? '润色' : 'Polish'}
+                        </button>
+                      </div>
                     </div>
                     {/* 富文本编辑器 */}
                     <div
                       className="form-textarea rounded-t-none border border-gray-200 min-h-[100px] p-3"
                       contentEditable
+                      data-edu-id={edu.id}
                       onBlur={(e) => updateEducation(edu.id, 'description', (e.target as HTMLElement).innerHTML)}
                       dangerouslySetInnerHTML={{ __html: edu.description || '' }}
                     />
@@ -1084,11 +1133,48 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           </svg>
                         </button>
                       </div>
+                      {/* 润色按钮 */}
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
+                          onClick={async () => {
+                            // 工作经历润色
+                            const element = document.querySelector(`[data-exp-id="${exp.id}"]`);
+                            if (element) {
+                              const originalContent = element.innerHTML;
+                               
+                              if (!originalContent || originalContent.trim() === '<p><br></p>' || originalContent.trim() === '') {
+                                alert(language === 'zh' ? '请先输入工作描述内容' : 'Please enter job description first');
+                                return;
+                              }
+                               
+                              try {
+                                // 导入DashScope API
+                                const { callDashScopeAPI } = await import('@/lib/dashscope');
+                                
+                                // 调用API进行润色
+                                const prompt = `请对以下工作经历描述进行润色，使其更加专业、简洁、有吸引力：\n\n${originalContent.replace(/<[^>]*>/g, '')}`;
+                                const polishedContent = await callDashScopeAPI(prompt);
+                                
+                                // 更新内容
+                                element.innerHTML = `<p>${polishedContent}</p>`;
+                                updateExperience(exp.id, 'description', `<p>${polishedContent}</p>`);
+                              } catch (error) {
+                                console.error('润色失败:', error);
+                                alert(language === 'zh' ? '润色失败，请检查API配置' : 'Polishing failed, please check API configuration');
+                              }
+                            }
+                          }}
+                        >
+                          {language === 'zh' ? '润色' : 'Polish'}
+                        </button>
+                      </div>
                     </div>
                     {/* 富文本编辑器 */}
                     <div
                       className="form-textarea rounded-t-none border border-gray-200 min-h-[120px] p-3"
                       contentEditable
+                      data-exp-id={exp.id}
                       onBlur={(e) => updateExperience(exp.id, 'description', (e.target as HTMLElement).innerHTML)}
                       dangerouslySetInnerHTML={{ __html: exp.description || '' }}
                     />
@@ -1259,11 +1345,48 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           </svg>
                         </button>
                       </div>
+                      {/* 润色按钮 */}
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
+                          onClick={async () => {
+                            // 项目经历润色
+                            const element = document.querySelector(`[data-proj-id="${project.id}"]`);
+                            if (element) {
+                              const originalContent = element.innerHTML;
+                               
+                              if (!originalContent || originalContent.trim() === '<p><br></p>' || originalContent.trim() === '') {
+                                alert(language === 'zh' ? '请先输入项目描述内容' : 'Please enter project description first');
+                                return;
+                              }
+                               
+                              try {
+                                // 导入DashScope API
+                                const { callDashScopeAPI } = await import('@/lib/dashscope');
+                                
+                                // 调用API进行润色
+                                const prompt = `请对以下项目经历描述进行润色，使其更加专业、简洁、有吸引力：\n\n${originalContent.replace(/<[^>]*>/g, '')}`;
+                                const polishedContent = await callDashScopeAPI(prompt);
+                                
+                                // 更新内容
+                                element.innerHTML = `<p>${polishedContent}</p>`;
+                                updateProject(project.id, 'description', `<p>${polishedContent}</p>`);
+                              } catch (error) {
+                                console.error('润色失败:', error);
+                                alert(language === 'zh' ? '润色失败，请检查API配置' : 'Polishing failed, please check API configuration');
+                              }
+                            }
+                          }}
+                        >
+                          {language === 'zh' ? '润色' : 'Polish'}
+                        </button>
+                      </div>
                     </div>
                     {/* 富文本编辑器 */}
                     <div
                       className="form-textarea rounded-t-none border border-gray-200 min-h-[120px] p-3"
                       contentEditable
+                      data-proj-id={project.id}
                       onBlur={(e) => updateProject(project.id, 'description', (e.target as HTMLElement).innerHTML)}
                       dangerouslySetInnerHTML={{ __html: project.description || '' }}
                     />
@@ -1602,6 +1725,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           </svg>
                         </button>
                       </div>
+
                     </div>
                   ) : (
                     /* 显示状态 */
@@ -1633,6 +1757,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           </svg>
                         </button>
                       </div>
+
                     </div>
                   )}
                 </div>
@@ -1767,6 +1892,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           </svg>
                         </button>
                       </div>
+
                     </div>
                   )}
                 </div>
