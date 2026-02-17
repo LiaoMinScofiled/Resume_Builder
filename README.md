@@ -21,7 +21,7 @@ Create professional and beautiful resumes with multiple styles, bilingual suppor
 - 个人信息管理（姓名、邮箱、电话、性别、年龄、照片）
 - 教育背景和工作经历管理
 - 技能管理
-- 三种简历风格：现代简约、专业商务、创意设计
+- 五种简历风格：现代简约、专业商务、创意设计、经典学术、简约卡片（仅改变背景颜色）
 - 实时预览
 - PDF 导出（无水印）
 
