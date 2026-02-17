@@ -48,18 +48,7 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
     return months;
   };
   
-  // 处理选择变化
-  const handleSelectChange = () => {
-    if (selectedYear && selectedMonth) {
-      onChange(`${selectedYear}-${selectedMonth}`);
-    } else if (selectedYear) {
-      // 只选择了年份，暂时不更新，等待选择月份
-    } else if (selectedMonth) {
-      // 只选择了月份，暂时不更新，等待选择年份
-    } else {
-      onChange('');
-    }
-  };
+
   
   // 处理点击外部关闭
   useEffect(() => {
@@ -104,8 +93,11 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
                 className="form-input w-full"
                 value={selectedYear}
                 onChange={(e) => {
-                  setSelectedYear(e.target.value);
-                  handleSelectChange();
+                  const year = e.target.value;
+                  setSelectedYear(year);
+                  if (selectedMonth) {
+                    onChange(`${year}-${selectedMonth}`);
+                  }
                 }}
               >
                 <option value="">选择年份</option>
@@ -122,8 +114,11 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
                 className="form-input w-full"
                 value={selectedMonth}
                 onChange={(e) => {
-                  setSelectedMonth(e.target.value);
-                  handleSelectChange();
+                  const month = e.target.value;
+                  setSelectedMonth(month);
+                  if (selectedYear) {
+                    onChange(`${selectedYear}-${month}`);
+                  }
                 }}
               >
                 <option value="">选择月份</option>

@@ -452,7 +452,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, language, key
                   )}
                 </div>
                 {/* 日期显示 - 简化逻辑，确保日期能够正确显示 */}
-                {(edu.startDate || edu.endDate) && (
+                {((edu.startDate && edu.startDate !== '') || (edu.endDate && edu.endDate !== '')) && (
                   <span className={`text-sm text-gray-600 font-medium ${datePosition === 'left' ? 'mr-4' : 'ml-4'} whitespace-nowrap flex-shrink-0`}>
                     {edu.startDate && edu.endDate ? `${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}` : (edu.startDate ? formatDate(edu.startDate) : formatDate(edu.endDate))}
                   </span>
@@ -498,7 +498,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, language, key
                   </div>
                 </div>
                 {/* 日期显示 - 简化逻辑，确保日期能够正确显示 */}
-                {(exp.startDate || exp.endDate) && (
+                {((exp.startDate && exp.startDate !== '') || (exp.endDate && exp.endDate !== '')) && (
                   <span className={`text-sm text-gray-600 font-medium ${datePosition === 'left' ? 'mr-4' : 'ml-4'} whitespace-nowrap flex-shrink-0`}>
                     {exp.startDate && exp.endDate ? `${formatDate(exp.startDate)} - ${formatDate(exp.endDate)}` : (exp.startDate ? formatDate(exp.startDate) : formatDate(exp.endDate))}
                   </span>
@@ -551,7 +551,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, language, key
                   <h3 className="font-semibold text-gray-900">{project.name}{project.role ? ` - ${project.role}` : ''}</h3>
                 </div>
                 {/* 日期显示 - 简化逻辑，确保日期能够正确显示 */}
-                {(project.startDate || project.endDate) && (
+                {((project.startDate && project.startDate !== '') || (project.endDate && project.endDate !== '')) && (
                   <span className={`text-sm text-gray-600 font-medium ${datePosition === 'left' ? 'mr-4' : 'ml-4'} whitespace-nowrap flex-shrink-0`}>
                     {project.startDate && project.endDate ? `${formatDate(project.startDate)} - ${formatDate(project.endDate)}` : (project.startDate ? formatDate(project.startDate) : formatDate(project.endDate))}
                   </span>
