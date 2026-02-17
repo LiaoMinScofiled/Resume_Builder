@@ -21,8 +21,11 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
   useEffect(() => {
     if (value) {
       const [year, month] = value.split('-');
-      setSelectedYear(year);
-      setSelectedMonth(month);
+      setSelectedYear(year || '');
+      setSelectedMonth(month || '');
+    } else {
+      setSelectedYear('');
+      setSelectedMonth('');
     }
   }, [value]);
   
@@ -49,6 +52,12 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
   const handleSelectChange = () => {
     if (selectedYear && selectedMonth) {
       onChange(`${selectedYear}-${selectedMonth}`);
+    } else if (selectedYear) {
+      // 只选择了年份，暂时不更新，等待选择月份
+    } else if (selectedMonth) {
+      // 只选择了月份，暂时不更新，等待选择年份
+    } else {
+      onChange('');
     }
   };
   
@@ -77,7 +86,7 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
         <span>
           {selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : 
            selectedYear ? `${selectedYear}-` : 
-           value || placeholder}
+           value !== '' ? value : placeholder}
         </span>
         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

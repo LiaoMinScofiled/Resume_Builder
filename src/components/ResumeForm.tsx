@@ -30,6 +30,12 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
   const [editingOtherInfoTitle, setEditingOtherInfoTitle] = useState<string>('');
   const [editingOtherInfoContent, setEditingOtherInfoContent] = useState<string>('');
   
+  // 年龄/生日切换状态
+  const [showAge, setShowAge] = useState<boolean>(true);
+  
+  // 已添加的额外字段状态
+  const [addedFields, setAddedFields] = useState<Set<string>>(new Set());
+  
   // 当技能布局变化时，通知父组件
   const handleSkillLayoutChange = (layout: 'single' | 'double' | 'triple') => {
     setSkillLayout(layout);
@@ -163,12 +169,35 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
   // 删除其他信息项
   const deleteOtherInfoItem = (index: number) => {
     const updatedItems = [...otherInfoItems];
-    updatedItems.splice(index, 1);
+    const deletedItem = updatedItems.splice(index, 1)[0];
     setOtherInfoItems(updatedItems);
     if (editingOtherInfoIndex === index) {
       setEditingOtherInfoIndex(null);
       setEditingOtherInfoTitle('');
       setEditingOtherInfoContent('');
+    }
+    
+    // 从addedFields中移除对应的字段类型
+    const fieldTypeMap: Record<string, string> = {
+      '身高': 'height',
+      '体重': 'weight',
+      '民族': 'ethnicity',
+      '籍贯': 'hometown',
+      '政治面貌': 'political',
+      '婚姻状态': 'marital',
+      'Height': 'height',
+      'Weight': 'weight',
+      'Ethnicity': 'ethnicity',
+      'Hometown': 'hometown',
+      'Political Status': 'political',
+      'Marital Status': 'marital'
+    };
+    
+    const fieldType = fieldTypeMap[deletedItem.title];
+    if (fieldType) {
+      const newAddedFields = new Set(addedFields);
+      newAddedFields.delete(fieldType);
+      setAddedFields(newAddedFields);
     }
     
     // 同步更新到全局状态
@@ -207,6 +236,48 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
         [field]: value,
       },
     });
+  };
+
+  // 切换年龄/生日显示
+  const toggleAgeBirthday = (showAgeFlag: boolean) => {
+    setShowAge(showAgeFlag);
+  };
+
+  // 添加额外信息字段
+  const addExtraField = (fieldType: string) => {
+    if (!addedFields.has(fieldType)) {
+      const newAddedFields = new Set(addedFields);
+      newAddedFields.add(fieldType);
+      setAddedFields(newAddedFields);
+      
+      // 添加到其他信息项中
+      const fieldLabels: Record<string, string> = {
+        height: language === 'zh' ? '身高' : 'Height',
+        weight: language === 'zh' ? '体重' : 'Weight',
+        ethnicity: language === 'zh' ? '民族' : 'Ethnicity',
+        hometown: language === 'zh' ? '籍贯' : 'Hometown',
+        political: language === 'zh' ? '政治面貌' : 'Political Status',
+        marital: language === 'zh' ? '婚姻状态' : 'Marital Status'
+      };
+      
+      const newItem = {
+        title: fieldLabels[fieldType] || fieldType,
+        content: language === 'zh' ? '请输入内容' : 'Please enter content'
+      };
+      
+      const newItems = [...otherInfoItems, newItem];
+      setOtherInfoItems(newItems);
+      
+      // 同步更新到全局状态
+      const otherInfoMap: Record<string, string> = {};
+      newItems.forEach(item => {
+        otherInfoMap[item.title] = item.content;
+      });
+      onResumeDataChange({
+        ...resumeData,
+        otherInfo: otherInfoMap
+      });
+    }
   };
 
   const addEducation = () => {
@@ -426,112 +497,291 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
       {/* 基本信息 */}
       {activeModule === 'basic' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          {/* 基本信息头部 */}
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <h3 className="text-lg font-semibold text-gray-800">
                 {language === 'zh' ? '基本信息' : 'Basic Information'}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '姓名' : 'Name'}</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={resumeData.personalInfo.name}
-                    onChange={(e) => handlePersonalInfoChange('name', e.target.value)}
-                    placeholder={language === 'zh' ? '请输入姓名' : 'Enter your name'}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '性别' : 'Gender'}</label>
-                  <select
-                    className="form-input"
-                    value={resumeData.personalInfo.gender || 'male'}
-                    onChange={(e) => handlePersonalInfoChange('gender', e.target.value)}
-                  >
-                    <option value="male">{language === 'zh' ? '男' : 'Male'}</option>
-                    <option value="female">{language === 'zh' ? '女' : 'Female'}</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '出生日期' : 'Date of Birth'}</label>
-                  <MonthPicker
-                    value={resumeData.personalInfo.birthDate}
-                    onChange={(value) => handlePersonalInfoChange('birthDate', value)}
-                    placeholder={language === 'zh' ? '2000-01' : '2000-01'}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '年龄' : 'Age'}</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={resumeData.personalInfo.age}
-                    onChange={(e) => handlePersonalInfoChange('age', e.target.value)}
-                    placeholder={language === 'zh' ? '请输入年龄' : 'Enter your age'}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '电话' : 'Phone'}</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={resumeData.personalInfo.phone}
-                    onChange={(e) => handlePersonalInfoChange('phone', e.target.value)}
-                    placeholder={language === 'zh' ? '请输入电话号码' : 'Enter your phone number'}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '邮箱' : 'Email'}</label>
-                  <input
-                    type="email"
-                    className="form-input"
-                    value={resumeData.personalInfo.email}
-                    onChange={(e) => handlePersonalInfoChange('email', e.target.value)}
-                    placeholder={language === 'zh' ? '请输入邮箱地址' : 'Enter your email address'}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{language === 'zh' ? '所在地区' : 'Location'}</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={resumeData.personalInfo.location}
-                    onChange={(e) => handlePersonalInfoChange('location', e.target.value)}
-                    placeholder={language === 'zh' ? '请输入所在地区' : 'Enter your location'}
-                  />
-                </div>
-              </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
             </div>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                {language === 'zh' ? '个人照片' : 'Personal Photo'}
-              </h3>
-              <div className="border border-dashed border-gray-300 rounded-lg p-4 text-center">
-                {resumeData.personalInfo.photo ? (
+            <p className="text-sm text-gray-600">
+              {language === 'zh' ? '基本信息的最大作用是让对方知道你是谁，以及如何联系你，其他非加分项信息可以考虑不写哦😊' : 'The main purpose of basic information is to let others know who you are and how to contact you. You can consider not writing other non-value-adding information😊'}
+            </p>
+          </div>
+          
+          {/* 基本信息表单 */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            {/* 个人信息和照片行 */}
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+              {/* 左侧：个人信息 */}
+              <div className="flex-1">
+                {/* 第一行：姓名和性别 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* 姓名 */}
                   <div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={resumeData.personalInfo.photo}
-                      alt={language === 'zh' ? '照片' : 'Photo'}
-                      className="w-full h-48 object-cover rounded-lg mb-2"
-                    />
-                    <button
-                      className="btn btn-primary w-full"
-                      onClick={() => handlePersonalInfoChange('photo', '')}
-                    >
-                      {language === 'zh' ? '更换照片' : 'Change Photo'}
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '姓名' : 'Name'}</label>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                     </div>
-                    <button
-                      className="btn btn-primary w-full"
+                    <input
+                      type="text"
+                      className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={resumeData.personalInfo.name}
+                      onChange={(e) => handlePersonalInfoChange('name', e.target.value)}
+                      placeholder={language === 'zh' ? '请输入姓名' : 'Enter your name'}
+                    />
+                  </div>
+                  
+                  {/* 性别 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '性别' : 'Gender'}</label>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <select
+                      className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={resumeData.personalInfo.gender || ''}
+                      onChange={(e) => handlePersonalInfoChange('gender', e.target.value)}
+                    >
+                      <option value="">{language === 'zh' ? '请选择' : 'Please select'}</option>
+                      <option value="male">{language === 'zh' ? '男' : 'Male'}</option>
+                      <option value="female">{language === 'zh' ? '女' : 'Female'}</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {/* 第二行：年龄和所在城市 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* 年龄/生日 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700">{showAge ? (language === 'zh' ? '年龄' : 'Age') : (language === 'zh' ? '生日' : 'Birthday')}</label>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        {showAge ? (
+                          <input
+                            type="text"
+                            className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={resumeData.personalInfo.age}
+                            onChange={(e) => handlePersonalInfoChange('age', e.target.value)}
+                            placeholder={language === 'zh' ? '请输入年龄' : 'Enter your age'}
+                          />
+                        ) : (
+                          <input
+                            type="date"
+                            className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={resumeData.personalInfo.birthDate}
+                            onChange={(e) => handlePersonalInfoChange('birthDate', e.target.value)}
+                            placeholder={language === 'zh' ? '请输入生日' : 'Enter your birthday'}
+                          />
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          type="button"
+                          className={`px-3 py-1 rounded-md text-xs font-medium ${showAge ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                          onClick={() => toggleAgeBirthday(true)}
+                        >
+                          {language === 'zh' ? '年龄' : 'Age'}
+                        </button>
+                        <button 
+                          type="button"
+                          className={`px-3 py-1 rounded-md text-xs font-medium ${!showAge ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                          onClick={() => toggleAgeBirthday(false)}
+                        >
+                          {language === 'zh' ? '生日' : 'Birthday'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 所在城市 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '所在城市' : 'City'}</label>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={resumeData.personalInfo.location}
+                      onChange={(e) => handlePersonalInfoChange('location', e.target.value)}
+                      placeholder={language === 'zh' ? '请输入所在城市' : 'Enter your city'}
+                    />
+                  </div>
+                </div>
+                
+                {/* 其他信息行 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* 左侧：邮箱 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '邮箱' : 'Email'}</label>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <input
+                      type="email"
+                      className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={resumeData.personalInfo.email}
+                      onChange={(e) => handlePersonalInfoChange('email', e.target.value)}
+                      placeholder={language === 'zh' ? '请输入邮箱地址' : 'Enter your email address'}
+                    />
+                  </div>
+                  
+                  {/* 右侧：电话 */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '电话' : 'Phone'}</label>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={resumeData.personalInfo.phone}
+                      onChange={(e) => handlePersonalInfoChange('phone', e.target.value)}
+                      placeholder={language === 'zh' ? '请输入电话号码' : 'Enter your phone number'}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* 右侧：个人照片 */}
+              <div className="flex-shrink-0">
+                <label className="text-sm font-medium text-gray-700 block mb-2">{language === 'zh' ? '个人照片' : 'Personal Photo'}</label>
+                <div className="relative">
+                  {resumeData.personalInfo.photo ? (
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={resumeData.personalInfo.photo}
+                        alt={language === 'zh' ? '照片' : 'Photo'}
+                        className="w-32 h-40 object-cover rounded-md border border-gray-200 cursor-pointer"
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'image/*';
+                          input.onchange = (e) => {
+                            const target = e.target as HTMLInputElement;
+                            if (target.files && target.files[0]) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                // 调整图片尺寸到标准简历照片大小
+                                const img = new Image();
+                                img.onload = () => {
+                                  // 标准简历照片尺寸：295×413像素（一寸照片，300DPI）
+                                  const canvas = document.createElement('canvas');
+                                  const ctx = canvas.getContext('2d');
+                                  canvas.width = 295;
+                                  canvas.height = 413;
+                                  
+                                  // 计算图片缩放比例，保持 aspect ratio
+                                  const scale = Math.min(295 / img.width, 413 / img.height);
+                                  const x = (295 - img.width * scale) / 2;
+                                  const y = (413 - img.height * scale) / 2;
+                                  
+                                  // 填充白色背景
+                                  if (ctx) {
+                                    ctx.fillStyle = '#ffffff';
+                                    ctx.fillRect(0, 0, 295, 413);
+                                    
+                                    // 绘制并缩放图片
+                                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                                  }
+                                  
+                                  // 转换为 data URL
+                                  const resizedImage = canvas.toDataURL('image/jpeg', 0.8);
+                                  handlePersonalInfoChange('photo', resizedImage);
+                                };
+                                img.src = event.target?.result as string;
+                              };
+                              reader.readAsDataURL(target.files[0]);
+                            }
+                          };
+                          input.click();
+                        }}
+                      />
+                      <div className="absolute top-0 right-0 flex flex-col gap-1 bg-white bg-opacity-80 rounded-bl-md">
+                        <button
+                          type="button"
+                          className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*';
+                            input.onchange = (e) => {
+                              const target = e.target as HTMLInputElement;
+                              if (target.files && target.files[0]) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  // 调整图片尺寸到标准简历照片大小
+                                  const img = new Image();
+                                  img.onload = () => {
+                                    // 标准简历照片尺寸：295×413像素（一寸照片，300DPI）
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d');
+                                    canvas.width = 295;
+                                    canvas.height = 413;
+                                    
+                                    // 计算图片缩放比例，保持 aspect ratio
+                                    const scale = Math.min(295 / img.width, 413 / img.height);
+                                    const x = (295 - img.width * scale) / 2;
+                                    const y = (413 - img.height * scale) / 2;
+                                    
+                                    // 填充白色背景
+                                    if (ctx) {
+                                      ctx.fillStyle = '#ffffff';
+                                      ctx.fillRect(0, 0, 295, 413);
+                                      
+                                      // 绘制并缩放图片
+                                      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                                    }
+                                    
+                                    // 转换为 data URL
+                                    const resizedImage = canvas.toDataURL('image/jpeg', 0.8);
+                                    handlePersonalInfoChange('photo', resizedImage);
+                                  };
+                                  img.src = event.target?.result as string;
+                                };
+                                reader.readAsDataURL(target.files[0]);
+                              }
+                            };
+                            input.click();
+                          }}
+                        >
+                          {language === 'zh' ? '更换' : 'Change'}
+                        </button>
+                        <button
+                          type="button"
+                          className="px-2 py-1 text-sm text-red-500 hover:bg-red-50 rounded"
+                          onClick={() => handlePersonalInfoChange('photo', '')}
+                        >
+                          {language === 'zh' ? '删除' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-32 h-40 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center cursor-pointer"
                       onClick={() => {
                         const input = document.createElement('input');
                         input.type = 'file';
@@ -541,7 +791,34 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                           if (target.files && target.files[0]) {
                             const reader = new FileReader();
                             reader.onload = (event) => {
-                              handlePersonalInfoChange('photo', event.target?.result as string);
+                              // 调整图片尺寸到标准简历照片大小
+                              const img = new Image();
+                              img.onload = () => {
+                                // 标准简历照片尺寸：295×413像素（一寸照片，300DPI）
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                canvas.width = 295;
+                                canvas.height = 413;
+                                
+                                // 计算图片缩放比例，保持 aspect ratio
+                                const scale = Math.min(295 / img.width, 413 / img.height);
+                                const x = (295 - img.width * scale) / 2;
+                                const y = (413 - img.height * scale) / 2;
+                                
+                                // 填充白色背景
+                                if (ctx) {
+                                  ctx.fillStyle = '#ffffff';
+                                  ctx.fillRect(0, 0, 295, 413);
+                                  
+                                  // 绘制并缩放图片
+                                  ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                                }
+                                
+                                // 转换为 data URL
+                                const resizedImage = canvas.toDataURL('image/jpeg', 0.8);
+                                handlePersonalInfoChange('photo', resizedImage);
+                              };
+                              img.src = event.target?.result as string;
                             };
                             reader.readAsDataURL(target.files[0]);
                           }
@@ -549,10 +826,205 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, onResumeDataChange,
                         input.click();
                       }}
                     >
-                      {language === 'zh' ? '上传照片' : 'Upload Photo'}
-                    </button>
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          
+            {/* 可添加的额外字段 */}
+            <div className="mt-6">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">{language === 'zh' ? '添加更多信息' : 'Add More Information'}</h4>
+              <div className="flex flex-wrap gap-3">
+                <button 
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${addedFields.has('height') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  onClick={() => addExtraField('height')}
+                  disabled={addedFields.has('height')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {language === 'zh' ? '身高' : 'Height'}
+                </button>
+                <button 
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${addedFields.has('weight') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  onClick={() => addExtraField('weight')}
+                  disabled={addedFields.has('weight')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {language === 'zh' ? '体重' : 'Weight'}
+                </button>
+                <button 
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${addedFields.has('ethnicity') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  onClick={() => addExtraField('ethnicity')}
+                  disabled={addedFields.has('ethnicity')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {language === 'zh' ? '民族' : 'Ethnicity'}
+                </button>
+                <button 
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${addedFields.has('hometown') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  onClick={() => addExtraField('hometown')}
+                  disabled={addedFields.has('hometown')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {language === 'zh' ? '籍贯' : 'Hometown'}
+                </button>
+                <button 
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${addedFields.has('political') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  onClick={() => addExtraField('political')}
+                  disabled={addedFields.has('political')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {language === 'zh' ? '政治面貌' : 'Political Status'}
+                </button>
+                <button 
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm ${addedFields.has('marital') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  onClick={() => addExtraField('marital')}
+                  disabled={addedFields.has('marital')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {language === 'zh' ? '婚姻状态' : 'Marital Status'}
+                </button>
+              </div>
+            </div>
+            
+            {/* 已添加的额外信息字段 */}
+            {otherInfoItems.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">{language === 'zh' ? '已添加信息' : 'Added Information'}</h4>
+                <div className="space-y-3">
+                  {otherInfoItems.map((item, index) => (
+                    <div key={index} className="bg-gray-50 p-3 rounded-md">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700">{item.title}</span>
+                        <button 
+                          type="button"
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => deleteOtherInfoItem(index)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={item.content}
+                        onChange={(e) => {
+                          const updatedItems = [...otherInfoItems];
+                          updatedItems[index].content = e.target.value;
+                          setOtherInfoItems(updatedItems);
+                          
+                          // 同步更新到全局状态
+                          const otherInfoMap: Record<string, string> = {};
+                          updatedItems.forEach(i => {
+                            otherInfoMap[i.title] = i.content;
+                          });
+                          onResumeDataChange({
+                            ...resumeData,
+                            otherInfo: otherInfoMap
+                          });
+                        }}
+                        placeholder={language === 'zh' ? '请输入内容' : 'Please enter content'}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* 求职意向 */}
+            <div className="mt-6">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">{language === 'zh' ? '求职意向' : 'Job Intention'}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 工作状态 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '工作状态' : 'Job Status'}</label>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
                   </div>
-                )}
+                  <input
+                    type="text"
+                    className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={resumeData.personalInfo.status}
+                    onChange={(e) => handlePersonalInfoChange('status', e.target.value)}
+                    placeholder={language === 'zh' ? '请输入工作状态' : 'Enter your job status'}
+                  />
+                </div>
+                
+                {/* 意向城市 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '意向城市' : 'Desired City'}</label>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={resumeData.personalInfo.location}
+                    onChange={(e) => handlePersonalInfoChange('location', e.target.value)}
+                    placeholder={language === 'zh' ? '请输入意向城市' : 'Enter your desired city'}
+                  />
+                </div>
+                
+                {/* 职位 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '职位' : 'Position'}</label>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={resumeData.personalInfo.title}
+                    onChange={(e) => handlePersonalInfoChange('title', e.target.value)}
+                    placeholder={language === 'zh' ? '请输入意向职位' : 'Enter your desired position'}
+                  />
+                </div>
+                
+                {/* 薪资 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-gray-700">{language === 'zh' ? '薪资' : 'Salary'}</label>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M11 5a2 2 0 002 2h2a2 2 0 002-2M11 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={resumeData.personalInfo.salary}
+                    onChange={(e) => handlePersonalInfoChange('salary', e.target.value)}
+                    placeholder={language === 'zh' ? '请输入薪资期望' : 'Enter your salary expectation'}
+                  />
+                </div>
               </div>
             </div>
           </div>

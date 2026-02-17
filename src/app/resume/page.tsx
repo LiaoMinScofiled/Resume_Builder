@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ResumeData, ResumeStyle } from '@/types/resume';
+import { ResumeData } from '@/types/resume';
 
 import ResumeForm from '@/components/ResumeForm';
 import ResumePreview from '@/components/ResumePreview';
@@ -35,7 +35,6 @@ const initialResumeData: ResumeData = {
 export default function ResumeBuilder() {
   const { language, user } = useApp();
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
-  const [resumeStyle] = useState<ResumeStyle>('style-1');
   // 字体状态
   const [fontFamily, setFontFamily] = useState<string>('微软雅黑');
   // 字体大小状态
@@ -46,8 +45,25 @@ export default function ResumeBuilder() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   // 预览简历弹窗状态
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  // 样式调整弹窗状态
+  const [showStyleModal, setShowStyleModal] = useState(false);
+  // 模板设置弹窗状态
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  
+  // 样式设置状态
+  const [moduleSpacing, setModuleSpacing] = useState<number>(18);
+  const [lineSpacing, setLineSpacing] = useState<number>(21);
+  const [pageMargin, setPageMargin] = useState<number>(12);
+  const [infoPosition, setInfoPosition] = useState<'left' | 'center' | 'right'>('left');
+  const [infoNameStyle, setInfoNameStyle] = useState<'text' | 'icon' | 'simple'>('text');
+  
+  // 模板设置状态
+  const [dateStyle, setDateStyle] = useState<'dot' | 'chinese' | 'english'>('dot');
+  const [datePosition, setDatePosition] = useState<'left' | 'right'>('right');
+  // 模板样式状态
+  const [resumeTemplate, setResumeTemplate] = useState<'template-1' | 'template-2' | 'template-3' | 'template-4' | 'template-5'>('template-1');
 
   // 测试环境变量
   useEffect(() => {
@@ -360,24 +376,31 @@ export default function ResumeBuilder() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors" onClick={() => setShowStyleModal(true)}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                       </svg>
                       {language === 'zh' ? '调整样式' : 'Adjust Style'}
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors" onClick={() => setShowTemplateModal(true)}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                       </svg>
                       {language === 'zh' ? '模板设置' : 'Template Settings'}
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                      </svg>
-                      {language === 'zh' ? '背景设置' : 'Background Settings'}
-                    </button>
+                    <div className="relative">
+                      <select 
+                        className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors border-none outline-none cursor-pointer"
+                        value={resumeTemplate}
+                        onChange={(e) => setResumeTemplate(e.target.value as 'template-1' | 'template-2' | 'template-3' | 'template-4' | 'template-5')}
+                      >
+                        <option value="template-1">{language === 'zh' ? '现代简约' : 'Modern Simple'}</option>
+                        <option value="template-2">{language === 'zh' ? '专业商务' : 'Professional Business'}</option>
+                        <option value="template-3">{language === 'zh' ? '创意设计' : 'Creative Design'}</option>
+                        <option value="template-4">{language === 'zh' ? '经典学术' : 'Classic Academic'}</option>
+                        <option value="template-5">{language === 'zh' ? '简约卡片' : 'Simple Card'}</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -390,7 +413,6 @@ export default function ResumeBuilder() {
                 <div id="resume-preview-inline" className="bg-white p-4 rounded-lg border border-gray-100 overflow-auto max-h-[800px]">
                   <ResumePreview
                     resumeData={resumeData}
-                    style={resumeStyle}
                     language={language}
                     skillLayout={skillLayout}
                     skillStyle={skillStyle}
@@ -399,6 +421,14 @@ export default function ResumeBuilder() {
                     fontSize={fontSize}
                     fontWeight={fontWeight}
                     onModuleClick={handleModuleClick}
+                    moduleSpacing={moduleSpacing}
+                    lineSpacing={lineSpacing}
+                    pageMargin={pageMargin}
+                    infoPosition={infoPosition}
+                    infoNameStyle={infoNameStyle}
+                    dateStyle={dateStyle}
+                    datePosition={datePosition}
+                    template={resumeTemplate}
                   />
                 </div>
               </div>
@@ -427,7 +457,6 @@ export default function ResumeBuilder() {
                 <div className="max-w-4xl mx-auto">
                   <ResumePreview
                     resumeData={resumeData}
-                    style={resumeStyle}
                     language={language}
                     skillLayout={skillLayout}
                     skillStyle={skillStyle}
@@ -435,13 +464,238 @@ export default function ResumeBuilder() {
                     fontFamily={fontFamily}
                     fontSize={fontSize}
                     fontWeight={fontWeight}
+                    moduleSpacing={moduleSpacing}
+                    lineSpacing={lineSpacing}
+                    pageMargin={pageMargin}
+                    infoPosition={infoPosition}
+                    infoNameStyle={infoNameStyle}
+                    dateStyle={dateStyle}
+                    datePosition={datePosition}
+                    template={resumeTemplate}
                   />
                 </div>
               </div>
 
             </div>
           </div>
-        )}
+      )}
+      
+      {/* 样式调整弹窗 */}
+      {showStyleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">{language === 'zh' ? '调整样式' : 'Adjust Style'}</h3>
+                <button 
+                  className="text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowStyleModal(false)}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              {/* 间距设置 */}
+              <div className="mb-8">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  {language === 'zh' ? '间距设置' : 'Spacing Settings'}
+                </h4>
+                
+                {/* 模块上下间距 */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      {language === 'zh' ? '模块上下间距:' : 'Module Spacing:'}
+                    </label>
+                    <span className="text-sm font-medium text-gray-700">{moduleSpacing}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="40"
+                    value={moduleSpacing}
+                    onChange={(e) => setModuleSpacing(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+                
+                {/* 行间距 */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      {language === 'zh' ? '行间距:' : 'Line Spacing:'}
+                    </label>
+                    <span className="text-sm font-medium text-gray-700">{lineSpacing}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="30"
+                    value={lineSpacing}
+                    onChange={(e) => setLineSpacing(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+                
+                {/* 页边距 */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      {language === 'zh' ? '页边距:' : 'Page Margin:'}
+                    </label>
+                    <span className="text-sm font-medium text-gray-700">{pageMargin}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="30"
+                    value={pageMargin}
+                    onChange={(e) => setPageMargin(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+              </div>
+              
+              {/* 信息样式 */}
+              <div className="mb-8">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  {language === 'zh' ? '信息样式' : 'Info Style'}
+                </h4>
+                
+                {/* 信息位置 */}
+                <div className="mb-4">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
+                    {language === 'zh' ? '信息位置:' : 'Info Position:'}
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors ${infoPosition === 'left' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      onClick={() => setInfoPosition('left')}
+                    >
+                      {language === 'zh' ? '居左' : 'Left'}
+                    </button>
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors ${infoPosition === 'center' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      onClick={() => setInfoPosition('center')}
+                    >
+                      {language === 'zh' ? '居中' : 'Center'}
+                    </button>
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors ${infoPosition === 'right' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      onClick={() => setInfoPosition('right')}
+                    >
+                      {language === 'zh' ? '居右' : 'Right'}
+                    </button>
+                  </div>
+                </div>
+                
+                {/* 信息名称样式 */}
+                <div className="mb-4">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
+                    {language === 'zh' ? '信息名称:' : 'Info Name Style:'}
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors ${infoNameStyle === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      onClick={() => setInfoNameStyle('text')}
+                    >
+                      {language === 'zh' ? '文字' : 'Text'}
+                    </button>
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors ${infoNameStyle === 'icon' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      onClick={() => setInfoNameStyle('icon')}
+                    >
+                      {language === 'zh' ? '图标' : 'Icon'}
+                    </button>
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors ${infoNameStyle === 'simple' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      onClick={() => setInfoNameStyle('simple')}
+                    >
+                      {language === 'zh' ? '简约' : 'Simple'}
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* 模板设置弹窗 */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">{language === 'zh' ? '模板设置' : 'Template Settings'}</h3>
+                <button 
+                  className="text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowTemplateModal(false)}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              {/* 日期样式 */}
+              <div className="mb-8">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  {language === 'zh' ? '日期样式' : 'Date Style'}
+                </h4>
+                <div className="flex gap-3">
+                  <button
+                    className={`px-4 py-2 rounded-md transition-colors ${dateStyle === 'dot' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    onClick={() => setDateStyle('dot')}
+                  >
+                    2025.04
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-md transition-colors ${dateStyle === 'chinese' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    onClick={() => setDateStyle('chinese')}
+                  >
+                    2025年04月
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-md transition-colors ${dateStyle === 'english' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    onClick={() => setDateStyle('english')}
+                  >
+                    Apr 2025
+                  </button>
+                </div>
+              </div>
+              
+              {/* 日期位置 */}
+              <div className="mb-8">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  {language === 'zh' ? '日期位置' : 'Date Position'}
+                </h4>
+                <div className="flex gap-3">
+                  <button
+                    className={`px-4 py-2 rounded-md transition-colors ${datePosition === 'left' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    onClick={() => setDatePosition('left')}
+                  >
+                    {language === 'zh' ? '居左' : 'Left'}
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-md transition-colors ${datePosition === 'right' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    onClick={() => setDatePosition('right')}
+                  >
+                    {language === 'zh' ? '居右' : 'Right'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+
       </main>
     </div>
   );
