@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import ToolCard from '@/components/ToolCard';
 import LoginForm from '@/components/LoginForm';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -11,6 +12,49 @@ export default function Home() {
   const { language, setLanguage, user, setUser } = useApp();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
+  const [paymentData, setPaymentData] = useState<{
+    payment_url: string;
+    order_id: string;
+    qr_code: string;
+  } | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'mazfu' | 'codepay'>('codepay');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 创建支付请求
+  const createPayment = async (amount: number, paymentMethod: 'mazfu' | 'codepay' = 'codepay') => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const orderId = `donate_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      const endpoint = paymentMethod === 'codepay' ? '/api/payment/code/create' : '/api/payment/create';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount,
+          description: '在线工具箱打赏',
+          orderId: orderId,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setPaymentData(result.data);
+      } else {
+        setError(result.error || '创建支付失败');
+      }
+    } catch (err) {
+      console.error('创建支付错误:', err);
+      setError('网络错误，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = (userData: User) => {
     setUser(userData);
@@ -382,7 +426,12 @@ export default function Home() {
                 {language === 'zh' ? '支持我们' : 'Support Us'}
               </h2>
               <button
-                onClick={() => setIsDonateModalOpen(false)}
+                onClick={() => {
+                  setIsDonateModalOpen(false);
+                  setPaymentData(null);
+                  setError(null);
+                  setPaymentMethod('codepay');
+                }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,28 +443,108 @@ export default function Home() {
               <p className="text-gray-600 mb-6">
                 {language === 'zh' ? '如果您觉得我们的工具对您有帮助，欢迎通过以下方式支持我们的发展' : 'If you find our tools helpful, please consider supporting our development'}
               </p>
-              <div className="bg-gray-50 p-6 rounded-xl mb-6">
-                <p className="text-gray-700 mb-4">{language === 'zh' ? '扫描二维码支付' : 'Scan QR Code to Pay'}</p>
-                <div className="bg-white p-4 rounded-lg inline-block shadow-sm">
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://www.mazfu.com/cashier/92e755eb38')}`}
-                    alt={language === 'zh' ? '支付二维码' : 'Payment QR Code'}
-                    className="w-48 h-48 mx-auto"
-                  />
-                </div>
-              </div>
-              <div className="mb-6">
-                <p className="text-gray-700 mb-2">{language === 'zh' ? '或直接点击支付链接' : 'Or click the payment link directly'}</p>
-                <a
-                  href="https://www.mazfu.com/cashier/92e755eb38"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg font-medium shadow hover:shadow-md transition-all duration-200"
-                >
-                  {language === 'zh' ? '前往支付' : 'Go to Pay'}
-                </a>
-              </div>
-              <p className="text-gray-500 text-sm">
+              
+              {!paymentData ? (
+                <>
+                  <div className="mb-6">
+                    <p className="text-gray-700 mb-4">{language === 'zh' ? '选择支付方式' : 'Select Payment Method'}</p>
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                      <button
+                        onClick={() => setPaymentMethod('codepay')}
+                        className={`py-3 border rounded-lg hover:bg-gray-50 transition-colors ${paymentMethod === 'codepay' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
+                      >
+                        {language === 'zh' ? '码支付' : 'Code Pay'}
+                      </button>
+                      <button
+                        onClick={() => setPaymentMethod('mazfu')}
+                        className={`py-3 border rounded-lg hover:bg-gray-50 transition-colors ${paymentMethod === 'mazfu' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
+                      >
+                        {language === 'zh' ? 'Mazfu' : 'Mazfu'}
+                      </button>
+                    </div>
+                    
+                    <p className="text-gray-700 mb-4">{language === 'zh' ? '选择打赏金额' : 'Select Donation Amount'}</p>
+                    <div className="grid grid-cols-3 gap-3 mb-6">
+                      {[5, 10, 20].map((amount) => (
+                        <button
+                          key={amount}
+                          onClick={() => createPayment(amount, paymentMethod)}
+                          disabled={loading}
+                          className="py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          ¥{amount}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mb-6">
+                      <p className="text-gray-700 mb-2">{language === 'zh' ? '自定义金额' : 'Custom Amount'}</p>
+                      <input
+                        type="number"
+                        placeholder="输入金额"
+                        min="1"
+                        step="1"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        id="custom-amount"
+                      />
+                      <button
+                        onClick={() => {
+                          const customAmount = parseFloat((document.getElementById('custom-amount') as HTMLInputElement).value);
+                          if (customAmount >= 1) {
+                            createPayment(customAmount, paymentMethod);
+                          }
+                        }}
+                        disabled={loading}
+                        className="mt-3 w-full py-2 bg-blue-500 text-white rounded-lg font-medium shadow hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading ? (language === 'zh' ? '处理中...' : 'Processing...') : (language === 'zh' ? '确认支付' : 'Confirm Payment')}
+                      </button>
+                    </div>
+                    {error && (
+                      <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg">
+                        {error}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-gray-50 p-6 rounded-xl mb-6">
+                    <p className="text-gray-700 mb-4">{language === 'zh' ? '扫描二维码支付' : 'Scan QR Code to Pay'}</p>
+                    <div className="bg-white p-4 rounded-lg inline-block shadow-sm">
+                      <div className="relative w-48 h-48 mx-auto">
+                        <Image
+                          src={paymentData.qr_code}
+                          alt={language === 'zh' ? '支付二维码' : 'Payment QR Code'}
+                          width={200}
+                          height={200}
+                          className="w-full h-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-gray-700 mb-2">{language === 'zh' ? '或直接点击支付链接' : 'Or click the payment link directly'}</p>
+                    <a
+                      href={paymentData.payment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg font-medium shadow hover:shadow-md transition-all duration-200"
+                    >
+                      {language === 'zh' ? '前往支付' : 'Go to Pay'}
+                    </a>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setPaymentData(null);
+                      setPaymentMethod('codepay');
+                    }}
+                    className="mt-4 px-6 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {language === 'zh' ? '重新选择金额' : 'Re-select Amount'}
+                  </button>
+                </>
+              )}
+              <p className="text-gray-500 text-sm mt-6">
                 {language === 'zh' ? '您的支持是我们持续改进的动力，谢谢！' : 'Your support is our motivation to keep improving, thank you!'}
               </p>
             </div>
