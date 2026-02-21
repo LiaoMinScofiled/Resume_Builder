@@ -10,7 +10,7 @@ lerna-debug.log*
 # Build output
 .next/
 out/
-
+.trae/
 # Environment variables
 .env
 .env.local
