@@ -66,17 +66,17 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-100 sticky top-0 z-50">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
                 {language === 'zh' ? '在线工具箱' : 'Online Tools'}
               </span>
             </div>
@@ -84,12 +84,12 @@ export default function Home() {
               <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
               {user ? (
                 <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm">
                     {user.name}
                   </span>
                   <button
                     onClick={handleLogout}
-                    className="text-sm text-gray-600 hover:text-gray-900"
+                    className="text-sm hover:text-primary transition-colors duration-200"
                   >
                     {language === 'zh' ? '退出' : 'Logout'}
                   </button>
@@ -107,7 +107,7 @@ export default function Home() {
                   e.preventDefault();
                   setIsDonateModalOpen(true);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm"
+                className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg font-semibold shadow-sm hover:shadow-md transition-all duration-300 text-sm cursor-pointer"
               >
                 {language === 'zh' ? '支持我们' : 'Support Us'}
               </button>
@@ -122,17 +122,17 @@ export default function Home() {
             <span className="px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
               🆓 {language === 'zh' ? '完全免费' : 'Completely Free'}
             </span>
-            <span className="px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+            <span className="px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
               🤖 {language === 'zh' ? 'AI 增强' : 'AI Enhanced'}
             </span>
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-5xl font-bold mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
             {language === 'zh' ? '在线工具箱' : 'Online Tools'}
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
+          <p className="text-xl max-w-2xl mx-auto mb-6">
             {language === 'zh' ? '选择您需要的工具，快速完成各种任务' : 'Choose the tools you need to complete tasks quickly'}
           </p>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+          <p className="text-lg max-w-2xl mx-auto opacity-80">
             {language === 'zh' ? '集成 AI 技术，提供智能简历生成、内容润色等功能，所有工具完全免费使用' : 'Integrated with AI technology, offering intelligent resume generation, content polishing, and all tools are completely free'}
           </p>
         </div>
@@ -141,10 +141,10 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
               <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🤖 AI 增强
+                AI
               </span>
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -164,7 +164,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -183,7 +183,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -202,7 +202,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -221,7 +221,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -240,7 +240,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -259,7 +259,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -278,7 +278,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -297,7 +297,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -316,7 +316,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -335,7 +335,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -354,7 +354,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -373,7 +373,7 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                🆓 免费
+                Free
               </span>
             </div>
             <ToolCard
@@ -386,6 +386,25 @@ export default function Home() {
               }
               href="/dataviz"
               color="border-cyan-500"
+            />
+          </div>
+
+          <div className="relative">
+            <div className="absolute -top-4 right-4 z-10">
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
+                Free
+              </span>
+            </div>
+            <ToolCard
+              title={language === 'zh' ? 'PDF 转 Word' : 'PDF to Word'}
+              description={language === 'zh' ? '上传 PDF 文件，转换为 Word 文档并下载' : 'Upload PDF files, convert to Word documents and download'}
+              icon={
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              }
+              href="/pdf-to-word"
+              color="border-blue-500"
             />
           </div>
         </div>
