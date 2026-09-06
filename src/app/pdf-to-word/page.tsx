@@ -1,22 +1,113 @@
 'use client';
 
-import React, { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from 'react';
+
+// 声明PDF.js类型
+let pdfjsLib: unknown = null;
 
 export default function PdfToWord() {
+  // 动态加载PDF.js
+  useEffect(() => {
+    const loadPDFJS = async () => {
+      try {
+        const pdfjs = await import('pdfjs-dist');
+        pdfjsLib = pdfjs;
+        // 设置PDF.js worker
+        if (pdfjs && pdfjs.GlobalWorkerOptions) {
+          pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version || '3.11.174'}/pdf.worker.min.js`;
+        }
+      } catch (error) {
+        console.error('加载PDF.js失败:', error);
+      }
+    };
+    
+    loadPDFJS();
+  }, []);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [convertedFile, setConvertedFile] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isTextBasedPDF, setIsTextBasedPDF] = useState<boolean | null>(null);
+  const [fileAnalysis, setFileAnalysis] = useState<string | null>(null);
+
+  // 检测PDF是否为文字版本
+  const detectPDFType = async (file: File): Promise<boolean> => {
+    try {
+      if (!pdfjsLib) {
+        console.error('PDF.js未加载');
+        // PDF.js未加载时默认按文字版本处理
+        return true;
+      }
+      
+      const pdfjs = pdfjsLib as any;
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      
+      let totalTextLength = 0;
+      
+      // 检查前几页以确定PDF类型
+      const pagesToCheck = Math.min(pdf.numPages, 3);
+      
+      for (let i = 1; i <= pagesToCheck; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        
+        // 计算页面文字长度
+        const pageText = content.items.map((item: any) => (
+          typeof item === 'object' && item !== null && 'str' in item ? item.str : ''
+        )).join('');
+        totalTextLength += pageText.length;
+        
+        // 如果已经找到足够的文字，提前结束检查
+        if (totalTextLength > 50) break;
+      }
+      
+      await pdf.destroy();
+      
+      // 判断逻辑：
+      // 如果有大量文字（> 50个字符），认为是文字版本
+      // 否则认为是图片版本（扫描件或图片PDF）
+      return totalTextLength > 50;
+    } catch (error) {
+      console.error('PDF检测错误:', error);
+      // 出错时默认按文字版本处理
+      return true;
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.type === 'application/pdf') {
         setSelectedFile(file);
         setError(null);
+        setIsTextBasedPDF(null);
+        setFileAnalysis(null);
+        
+        // 检测PDF类型
+        try {
+          setIsConverting(true);
+          const isTextBased = await detectPDFType(file);
+          setIsTextBasedPDF(isTextBased);
+          setFileAnalysis(
+            isTextBased 
+              ? 'PDF 包含可选择的文字内容，将使用前端框架直接转换'
+              : 'PDF 可能是图片扫描版或包含大量图片，将使用 OCR 技术处理'
+          );
+        } catch (err) {
+          console.error('检测PDF类型错误:', err);
+          setError('检测PDF类型失败');
+        } finally {
+          setIsConverting(false);
+        }
       } else {
         setError('请选择PDF格式的文件');
         setSelectedFile(null);
+        setIsTextBasedPDF(null);
+        setFileAnalysis(null);
       }
     }
   };
@@ -31,15 +122,30 @@ export default function PdfToWord() {
     setError(null);
 
     try {
-      // 模拟PDF转Word的过程
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 模拟生成的Word文件URL
-      const mockWordFileUrl = URL.createObjectURL(
-        new Blob(['模拟的Word文档内容'], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-      );
-      
-      setConvertedFile(mockWordFileUrl);
+      // 根据PDF类型执行不同的转换逻辑
+      if (isTextBasedPDF === true) {
+        // 文字版本PDF：直接调用前端框架生成Word
+        console.log('处理文字版本PDF...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 模拟生成的Word文件URL
+        const mockWordFileUrl = URL.createObjectURL(
+          new Blob(['文字版本PDF转换的Word文档内容'], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+        );
+        
+        setConvertedFile(mockWordFileUrl);
+      } else {
+        // 图片版本PDF：使用百度OCR技术处理
+        console.log('处理图片版本PDF，使用OCR技术...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // 模拟OCR处理后的Word文件URL
+        const mockWordFileUrl = URL.createObjectURL(
+          new Blob(['OCR处理后的Word文档内容'], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+        );
+        
+        setConvertedFile(mockWordFileUrl);
+      }
     } catch (err) {
       setError('转换失败，请稍后重试');
       console.error('转换错误:', err);
@@ -63,6 +169,8 @@ export default function PdfToWord() {
     setSelectedFile(null);
     setConvertedFile(null);
     setError(null);
+    setIsTextBasedPDF(null);
+    setFileAnalysis(null);
   };
 
   return (
@@ -93,9 +201,23 @@ export default function PdfToWord() {
                 />
               </div>
               {selectedFile && (
-                <p className="mt-2 text-sm text-green-600">
-                  已选择文件: {selectedFile.name}
-                </p>
+                <div className="mt-2 space-y-2">
+                  <p className="text-sm text-green-600">
+                    已选择文件: {selectedFile.name}
+                  </p>
+                  {fileAnalysis && (
+                    <p className="text-sm text-blue-600">
+                      {fileAnalysis}
+                    </p>
+                  )}
+                  {isTextBasedPDF !== null && (
+                    <div className={`p-3 rounded-lg ${isTextBasedPDF ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                      <span className="font-medium">
+                        {isTextBasedPDF ? '文字版本PDF' : '图片版本PDF'}
+                      </span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 

@@ -11,6 +11,7 @@ lerna-debug.log*
 .next/
 out/
 .trae/
+*.tsbuildinfo
 # Environment variables
 .env
 .env.local
