@@ -473,13 +473,9 @@ export default function Home() {
                       <Image
                         src={QR_CODES[payMethod]}
                         alt={language === 'zh' ? '收款码' : 'Payment QR Code'}
-                        width={220}
-                        height={220}
-                        className="w-48 h-48 object-contain"
-                        onError={(e) => {
-                          // 图片未放置时显示占位提示
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
+                        width={320}
+                        height={320}
+                        className="w-72 h-72 object-contain"
                       />
                     </div>
                     <p className="text-gray-500 text-sm mt-4">
@@ -495,7 +491,7 @@ export default function Home() {
                       {language === 'zh' ? '建议打赏金额（仅供参考）' : 'Suggested amounts (for reference only)'}
                     </p>
                     <div className="grid grid-cols-4 gap-2">
-                      {[5, 10, 20, 50].map((amount) => (
+                      {[1, 3, 5, 10].map((amount) => (
                         <span
                           key={amount}
                           className="py-2 border border-gray-200 rounded-lg text-gray-600 text-center"

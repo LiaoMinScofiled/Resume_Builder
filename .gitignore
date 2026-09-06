@@ -41,3 +41,6 @@ RLS_GUIDE.md
 *.njsproj
 *.sln
 *.sw?
+
+# Personal payment QR codes (do not commit)
+public/payment/
