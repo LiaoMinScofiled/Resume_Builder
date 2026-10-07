@@ -46,7 +46,7 @@ export default function GreetingPage() {
       } else {
         setError(data.error || (language === 'zh' ? '生成失败' : 'Generation failed'));
       }
-    } catch (err) {
+    } catch {
       setError(language === 'zh' ? '网络错误，请稍后重试' : 'Network error, please try again later');
     } finally {
       setLoading(false);
@@ -62,8 +62,6 @@ export default function GreetingPage() {
       setError(language === 'zh' ? '复制失败，请手动复制' : 'Copy failed, please copy manually');
     }
   };
-
-  const activePlatform = PLATFORMS.find((p) => p.value === platform)!;
 
   return (
     <div className="min-h-screen bg-gray-50">
