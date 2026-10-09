@@ -128,6 +128,32 @@ export default function Home() {
 
           <div className="relative">
             <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
+              <span className="px-3 py-1 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-full text-xs font-bold shadow-lg animate-pulse">
+                NEW
+              </span>
+              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
+                AI
+              </span>
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
+                Free
+              </span>
+            </div>
+            <ToolCard
+              title={language === 'zh' ? '简历毒舌诊断' : 'Resume Roast'}
+              description={language === 'zh' ? '毒舌 HR 在线打分：成绩单 + 五维评分 + 犀利吐槽 + 修改建议，可一键接力润色' : 'A roast HR scores your resume: report card, 5-dimension breakdown, roast and fixes, with one-click polish handoff'}
+              icon={
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+                </svg>
+              }
+              href="/resume-roast"
+              color="border-red-500"
+            />
+          </div>
+
+          <div className="relative">
+            <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
               <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
                 AI
               </span>

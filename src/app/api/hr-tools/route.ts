@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callDeepSeek } from '@/lib/deepseek';
 
-type ToolType = 'jd' | 'highlights' | 'interview' | 'polish';
+type ToolType = 'jd' | 'highlights' | 'interview' | 'polish' | 'roast';
 
 const SYSTEM_PROMPT =
   '你是一名资深 HR 与招聘专家，精通招聘全流程，擅长撰写职位描述、解析简历、设计面试题与润色简历，输出内容专业、结构清晰、可直接使用。';
@@ -84,14 +84,17 @@ ${resume}
     }
 
     case 'polish': {
-      const { resume } = body;
+      const { resume, focus = '' } = body;
       const user = `请对以下候选人简历进行润色改写，使其表达更专业、更书面化，去除口语化表达，突出成果与能力。
 
 原始简历：
 """
 ${resume}
 """
-
+${focus ? `
+重点优化方向（来自简历毒舌诊断，请针对性解决这些问题）：
+${focus}
+` : ''}
 请严格按照以下结构输出（使用 Markdown）：
 ## 润色后的简历
 （完整输出润色后的简历正文）
@@ -105,6 +108,50 @@ ${resume}
 4. 去除口语化、冗余表述，语言简洁专业。`;
       return [system, { role: 'user', content: user }];
     }
+
+    case 'roast': {
+      const { resume, position = '', lang = 'zh' } = body;
+      const langDesc = lang === 'en' ? '英文' : '中文';
+      const user = `请以毒舌 HR 的风格诊断以下简历，给出犀利、扎心但专业的评价。
+
+目标岗位：${position || '（未指定，请根据简历推断）'}
+
+简历内容：
+"""
+${resume}
+"""
+
+要求：
+1. 只输出一个 JSON 对象，不要 markdown 代码块标记，不要任何解释文字。
+2. 除 JSON 的 key 外，所有评语文本使用${langDesc}输出。
+3. JSON 结构如下：
+{
+  "score": <0-100 整数总分>,
+  "grade": "<S|A|B|C|D>",
+  "verdict": "<一句话毒舌总评，30字以内，犀利幽默>",
+  "dimensions": [
+    { "name": "内容质量", "score": 0, "comment": "<毒舌点评，40字以内>" },
+    { "name": "量化成果", "score": 0, "comment": "<毒舌点评，40字以内>" },
+    { "name": "关键词密度", "score": 0, "comment": "<毒舌点评，40字以内>" },
+    { "name": "格式规范", "score": 0, "comment": "<毒舌点评，40字以内>" },
+    { "name": "岗位竞争力", "score": 0, "comment": "<毒舌点评，40字以内>" }
+  ],
+  "roasts": ["<毒舌吐槽 3-5 条，一针见血且具体到简历原文>"],
+  "suggestions": ["<可执行的修改建议 3-5 条，具体到怎么改>"],
+  "missingKeywords": ["<这份简历缺失的高频关键词，0-8 个>"]
+}
+4. 毒舌但不人身攻击，所有吐槽必须指向简历内容本身。
+5. 评分要严格：70 分以上代表优秀，大多数普通简历应在 40-65 之间。
+6. 建议必须具体可落地，能直接指导修改。`;
+      return [
+        {
+          role: 'system',
+          content:
+            '你是一名以「毒舌」著称的资深 HR 总监，阅简历无数，点评犀利扎心但专业中肯。毒舌是为了让候选人进步，绝不空洞攻击，你的点评在网上被求职者疯传。',
+        },
+        { role: 'user', content: user },
+      ];
+    }
   }
 }
 
@@ -113,7 +160,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { type, ...params } = body as { type?: string } & Record<string, string>;
 
-    const validTypes: ToolType[] = ['jd', 'highlights', 'interview', 'polish'];
+    const validTypes: ToolType[] = ['jd', 'highlights', 'interview', 'polish', 'roast'];
     if (!type || !validTypes.includes(type as ToolType)) {
       return NextResponse.json({ error: '无效的工具类型' }, { status: 400 });
     }
@@ -127,6 +174,9 @@ export async function POST(request: NextRequest) {
     }
     if (type === 'interview' && !params.resume?.trim()) {
       return NextResponse.json({ error: '请粘贴候选人简历内容' }, { status: 400 });
+    }
+    if (type === 'roast' && !params.resume?.trim()) {
+      return NextResponse.json({ error: '请粘贴简历内容' }, { status: 400 });
     }
 
     const messages = buildMessages(type as ToolType, params);

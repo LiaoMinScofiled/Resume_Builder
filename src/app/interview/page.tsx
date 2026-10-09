@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import HrToolLayout from '@/components/HrToolLayout';
+import ResumeFillBanner from '@/components/ResumeFillBanner';
 
 export default function InterviewPage() {
   const [position, setPosition] = useState('');
@@ -30,6 +31,10 @@ export default function InterviewPage() {
       descZh="按岗位与简历生成针对性面试问题，考察候选真实水平"
       descEn="Generate targeted interview questions based on position and resume"
       generate={generate}
+      nextSteps={[
+        { href: '/greeting', labelZh: '生成打招呼话术', labelEn: 'Generate greeting scripts' },
+        { href: '/resume-roast', labelZh: '诊断一下这份简历', labelEn: 'Roast this resume' },
+      ]}
     >
       <div className="bg-white rounded-2xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">招聘岗位（选填）</h2>
@@ -44,6 +49,7 @@ export default function InterviewPage() {
 
       <div className="bg-white rounded-2xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">候选人简历（必填）</h2>
+        <ResumeFillBanner onFill={setResume} />
         <textarea
           value={resume}
           onChange={(e) => setResume(e.target.value)}

@@ -5,6 +5,12 @@ import Link from 'next/link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useApp } from '@/contexts/AppContext';
 
+export interface ToolNextStep {
+  href: string;
+  labelZh: string;
+  labelEn: string;
+}
+
 interface HrToolLayoutProps {
   titleZh: string;
   titleEn: string;
@@ -12,9 +18,13 @@ interface HrToolLayoutProps {
   descEn: string;
   generate: () => Promise<string>;
   children: React.ReactNode;
+  // 生成成功后的回调（如：保存简历到本地，供其他工具接力）
+  onSuccess?: (content: string) => void;
+  // 结果底部的「下一步」链路按钮，串联工具闭环
+  nextSteps?: ToolNextStep[];
 }
 
-export default function HrToolLayout({ titleZh, titleEn, descZh, descEn, generate, children }: HrToolLayoutProps) {
+export default function HrToolLayout({ titleZh, titleEn, descZh, descEn, generate, children, onSuccess, nextSteps }: HrToolLayoutProps) {
   const { language, setLanguage } = useApp();
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,6 +39,7 @@ export default function HrToolLayout({ titleZh, titleEn, descZh, descEn, generat
     try {
       const content = await generate();
       setResult(content);
+      onSuccess?.(content);
     } catch (err) {
       setError(err instanceof Error ? err.message : (language === 'zh' ? '生成失败' : 'Generation failed'));
     } finally {
@@ -135,6 +146,25 @@ export default function HrToolLayout({ titleZh, titleEn, descZh, descEn, generat
                     ? '填写左侧信息后点击「生成」\n即可获得结果'
                     : 'Fill in the info and click "Generate"'}
                 </p>
+              </div>
+            )}
+
+            {result && nextSteps && nextSteps.length > 0 && (
+              <div className="mt-5 pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500 mb-3">
+                  {language === 'zh' ? '下一步，把这份简历变强' : 'Next steps'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {nextSteps.map((step) => (
+                    <Link
+                      key={step.href}
+                      href={step.href}
+                      className="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+                    >
+                      → {language === 'zh' ? step.labelZh : step.labelEn}
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
           </div>

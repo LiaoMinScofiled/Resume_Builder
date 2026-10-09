@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import ResumeFillBanner from '@/components/ResumeFillBanner';
 import { useApp } from '@/contexts/AppContext';
 
 type Platform = 'boss' | 'linkedin' | 'maimai';
@@ -135,6 +136,7 @@ export default function GreetingPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 {language === 'zh' ? '3. 粘贴候选人简历' : '3. Paste Candidate Resume'}
               </h2>
+              <ResumeFillBanner onFill={setResume} />
               <textarea
                 value={resume}
                 onChange={(e) => setResume(e.target.value)}
@@ -227,6 +229,22 @@ export default function GreetingPage() {
                     ? '填写左侧信息后点击「生成打招呼话术」\n即可获得 3 个个性化版本'
                     : 'Fill in the info and click "Generate"\nto get 3 personalized versions'}
                 </p>
+              </div>
+            )}
+
+            {result && !loading && (
+              <div className="mt-5 pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500 mb-3">
+                  {language === 'zh' ? '下一步，让候选人无法拒绝你' : 'Next steps'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/resume-roast" className="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors">
+                    → {language === 'zh' ? '诊断这份简历' : 'Roast this resume'}
+                  </Link>
+                  <Link href="/resume-polish" className="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors">
+                    → {language === 'zh' ? '润色这份简历' : 'Polish this resume'}
+                  </Link>
+                </div>
               </div>
             )}
           </div>
