@@ -237,6 +237,94 @@ export default function Home() {
           </div>
 
           <div className="relative">
+            <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
+              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
+                AI
+              </span>
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
+                Free
+              </span>
+            </div>
+            <ToolCard
+              title={language === 'zh' ? 'AI 翻译润色' : 'AI Translator'}
+              description={language === 'zh' ? '中英互译并地道化润色，让表达更自然' : 'Translate between Chinese and English with native-level polishing'}
+              icon={
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
+              }
+              href="/translate"
+              color="border-blue-500"
+            />
+          </div>
+
+          <div className="relative">
+            <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
+              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
+                AI
+              </span>
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
+                Free
+              </span>
+            </div>
+            <ToolCard
+              title={language === 'zh' ? '小红书文案' : 'Xiaohongshu Copy'}
+              description={language === 'zh' ? 'AI 生成吸睛标题、种草正文与话题标签' : 'AI generates catchy title, body copy and hashtags'}
+              icon={
+                <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                </svg>
+              }
+              href="/xiaohongshu"
+              color="border-rose-500"
+            />
+          </div>
+
+          <div className="relative">
+            <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
+              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
+                AI
+              </span>
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
+                Free
+              </span>
+            </div>
+            <ToolCard
+              title={language === 'zh' ? '周报/日报生成' : 'Report Generator'}
+              description={language === 'zh' ? 'AI 将工作要点整理成结构化专业汇报' : 'AI turns work points into a structured professional report'}
+              icon={
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              }
+              href="/report"
+              color="border-emerald-500"
+            />
+          </div>
+
+          <div className="relative">
+            <div className="absolute -top-4 right-4 z-10 flex flex-col gap-2">
+              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg">
+                AI
+              </span>
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
+                Free
+              </span>
+            </div>
+            <ToolCard
+              title={language === 'zh' ? '会议纪要总结' : 'Meeting Summary'}
+              description={language === 'zh' ? 'AI 提炼会议结论、要点与待办事项' : 'AI extracts conclusions, key points and action items'}
+              icon={
+                <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              }
+              href="/meeting-summary"
+              color="border-cyan-500"
+            />
+          </div>
+
+          <div className="relative">
             <div className="absolute -top-4 right-4 z-10">
               <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
                 Free
@@ -262,25 +350,6 @@ export default function Home() {
               </span>
             </div>
             <ToolCard
-              title={language === 'zh' ? '繁简转换' : 'Traditional/Simplified'}
-              description={language === 'zh' ? '中文繁体和简体相互转换，支持大段文本处理，快速准确' : 'Convert between Traditional and Simplified Chinese, support large text processing, fast and accurate'}
-              icon={
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              }
-              href="/convert"
-              color="border-green-500"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute -top-4 right-4 z-10">
-              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                Free
-              </span>
-            </div>
-            <ToolCard
               title={language === 'zh' ? '语音工具' : 'Speech Tools'}
               description={language === 'zh' ? '文字转语音、语音转文字，支持多种语音和语言，实时转换' : 'Text to Speech, Speech to Text, supports multiple voices and languages, real-time conversion'}
               icon={
@@ -290,82 +359,6 @@ export default function Home() {
               }
               href="/speech"
               color="border-orange-500"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute -top-4 right-4 z-10">
-              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                Free
-              </span>
-            </div>
-            <ToolCard
-              title={language === 'zh' ? '计算器' : 'Calculator'}
-              description={language === 'zh' ? '日常计算、科学计算、程序员计算，支持多种进制转换' : 'Basic, Scientific, and Programmer Calculator with multiple base conversions'}
-              icon={
-                <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              }
-              href="/calculator"
-              color="border-cyan-500"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute -top-4 right-4 z-10">
-              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                Free
-              </span>
-            </div>
-            <ToolCard
-              title={language === 'zh' ? '编码/解码' : 'Encoder/Decoder'}
-              description={language === 'zh' ? 'URL 编码/解码、Base64 编码/解码，快速转换' : 'URL Encode/Decode, Base64 Encode/Decode, fast conversion'}
-              icon={
-                <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-              }
-              href="/encoder"
-              color="border-pink-500"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute -top-4 right-4 z-10">
-              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                Free
-              </span>
-            </div>
-            <ToolCard
-              title={language === 'zh' ? '密码工具' : 'Password Tools'}
-              description={language === 'zh' ? '密码强度检测、安全密码生成，保护账户安全' : 'Password strength checker, secure password generator, protect your accounts'}
-              icon={
-                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              }
-              href="/password"
-              color="border-emerald-500"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute -top-4 right-4 z-10">
-              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full text-xs font-bold shadow-lg">
-                Free
-              </span>
-            </div>
-            <ToolCard
-              title={language === 'zh' ? '网名/ID生成器' : 'Nickname/ID Generator'}
-              description={language === 'zh' ? '古风、游戏、英文、情侣等多种风格，个性化网名生成' : 'Ancient, game, English, couple and other styles, personalized nickname generation'}
-              icon={
-                <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              }
-              href="/nickname"
-              color="border-rose-500"
             />
           </div>
 
